@@ -1,0 +1,84 @@
+# TallyField — reference PWA scaffold
+
+A working starting point, not a finished product: front end (installable
+PWA), PHP/PDO/MySQL API, and a service worker, built to match the
+[[tallyfield]] blueprint, screen spec, and Launch Checklist, with every
+fix from the Release QA Pass already applied.
+
+## What's here
+
+```
+schema.sql            Production schema (scheduled_date + feed index fixes included)
+seed.sql              Dev/demo data only — never run against production
+api/
+  config.php           DB connection, requireAuth(), error logging
+  auth/                send-otp.php, verify-otp.php, logout.php
+  visits/              list.php, checkin.php
+  customers/           get.php
+  field-transactions/  create.php, list.php, retry.php
+  owner/                dashboard.php
+public/                 Deploy this folder as the web root
+  index.html            App shell
+  app.js                Router, screens, API calls
+  queue.js              IndexedDB offline queue for check-in / log outcome
+  service-worker.js     App-shell caching for offline load
+  manifest.json          PWA installability
+  icons/                 Placeholder SVG icons (swap for real artwork before wide release)
+```
+
+## QA fixes already applied here
+
+Everything flagged in the Release QA Pass is fixed in this scaffold, not
+just documented:
+
+- **Defect 1** (OTP brute-force) — `send-otp.php` rate-limits to 5 sends/hour per user before generating a new code
+- **Defect 2** (Order submission contract) — `create.php` validates Orders on `items_json`, not `amount`; the front end collects the right fields per type
+- **Defect 3** (visit date logic) — `visits.scheduled_date` replaces the broken `COALESCE(checkin_time, NOW())` filter
+- **Defect 4** (phone enumeration) — `send-otp.php` returns the same response whether or not the phone is registered
+- **Defect 5** (XSS) — every dynamic value in `app.js` goes through `esc()` before hitting `innerHTML`
+- **Defect 6** (stale UI state) — `checkinPhoto`, `checkinGpsState`, and `outcomeType` are reset at the top of their `wire*()` functions on every screen entry
+- **Defect 7** (dropped form fields) — the Log Outcome submit handler now reads every field per type into the actual payload
+- **Defect 8** (missing index) — `idx_ft_tenant_created` added; the dashboard feed query is also bounded to the last 7 days
+- **Defect 9** (duplicate check-in / upload size) — `checkin.php` returns the existing visit instead of creating a duplicate, and rejects a `photo_base64` over ~4 MB
+- **Defect 10** (no current-user concept) — the front end now authenticates for real; every screen's data comes from the session-scoped API, not a hardcoded mock user
+
+## What's stubbed, on purpose
+
+This is a reference scaffold, not the full app — it covers the core loop
+(login → check-in → log outcome → sync) end to end. Not yet built, but
+following the exact same `config.php` + `requireAuth()` + `esc()`
+patterns already in place:
+
+- Rep Drilldown, Reports, and Settings screens/endpoints
+- Real SMS sending in `send-otp.php` (the `// BACKEND:` comment marks where)
+- Photo upload to real storage in `checkin.php` (same marker)
+- The Windows desktop Tally sync agent itself — this scaffold's API writes
+  `field_transactions` rows for the agent to pick up; the agent is the
+  existing one from [[capl-mobile-apps]], reused as-is per the blueprint
+
+## Deploying, per the Launch Checklist
+
+1. Run `schema.sql` against a fresh production MySQL database — **do not** run `seed.sql` there
+2. Set `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` as environment variables on the Hostinger PHP runtime; confirm `config.php` never falls back to its empty defaults
+3. Upload `api/` and the contents of `public/` to the subdomain's web root (`public/index.html` becomes the site's `index.html`)
+4. Confirm HTTPS is issued for the exact subdomain before go-live
+5. Insert the real `tenants` and `users` rows (owner + first rep, real phone numbers) — replace, don't append to, any test rows
+6. Point the existing desktop Tally sync agent at this tenant's `field_transactions` queue
+7. Run the Go-Live Sequence's T-15-minute smoke test (login, check-in, log a real collection, confirm it reaches `sync_status = synced` and appears correctly in Tally) before inviting the first real rep
+
+## Local development
+
+Any PHP 8+ / MySQL setup works. Quick start:
+
+```bash
+mysql -u root -p tallyfield < schema.sql
+mysql -u root -p tallyfield < seed.sql   # dev only
+php -S localhost:8080 -t public
+```
+
+Point `api/config.php`'s defaults at your local MySQL, or export the four
+`DB_*` environment variables before starting PHP's built-in server. The
+API isn't reachable at `localhost:8080/api/...` this way unless you also
+serve `api/` from the same document root — for local testing, symlink or
+copy `api/` into `public/api/`, or run a second `php -S` instance for it
+and adjust `API_BASE` in `app.js` accordingly.
