@@ -8,14 +8,14 @@
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 
 if (workbox) {
   workbox.setConfig({ debug: false });
 
   // Take over immediately on install/activate so updates apply without
   // needing every tab closed — paired with the page-side reload-once
-  // listener in app.js for a fully automatic update flow.
+  // listener in index.html for a fully automatic update flow.
   workbox.core.skipWaiting();
   workbox.core.clientsClaim();
 
@@ -23,9 +23,6 @@ if (workbox) {
   workbox.precaching.precacheAndRoute([
     { url: './', revision: VERSION },
     { url: './index.html', revision: VERSION },
-    { url: './app.js', revision: VERSION },
-    { url: './queue.js', revision: VERSION },
-    { url: './mock.js', revision: VERSION },
     { url: './manifest.json', revision: VERSION },
     { url: './icons/icon-192.png', revision: VERSION },
     { url: './icons/icon-512.png', revision: VERSION },
@@ -65,7 +62,7 @@ if (workbox) {
 
   // Any other static asset under this scope (images, icons added later):
   // cache-first, since this build has no real API calls to worry about
-  // excluding (see mock.js — it never touches the network at all).
+  // excluding — this build has no real API calls to worry about excluding, all state lives in localStorage.
   workbox.routing.registerRoute(
     ({ request }) => ['image', 'font'].includes(request.destination),
     new workbox.strategies.CacheFirst({
@@ -77,7 +74,7 @@ if (workbox) {
   // Workbox failed to load (offline on first install, CDN unreachable):
   // fall back to a minimal hand-rolled cache so the app still installs.
   const CACHE_NAME = 'tallyfield-shell-fallback';
-  const SHELL = ['./', './index.html', './app.js', './queue.js', './mock.js', './manifest.json'];
+  const SHELL = ['./', './index.html', './manifest.json'];
   self.addEventListener('install', (e) => {
     e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(SHELL)));
     self.skipWaiting();

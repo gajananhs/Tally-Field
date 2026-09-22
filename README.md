@@ -8,11 +8,14 @@ fix from the Release QA Pass already applied.
 ## What's here
 
 ```
-index.html, app.js, mock.js, queue.js, manifest.json,
-service-worker.js, icons/, splash/, .nojekyll, 404.html
-                       Static, backend-free PWA build — published at the
-                       repo root so GitHub Pages works with the default
-                       "/(root)" source setting. See DEPLOY.md.
+index.html             Complete, self-contained PWA — all 10 screens (Login,
+                        Rep Home, Customer Detail, Check-in, Log Outcome, Sync
+                        Status, Owner Dashboard, Rep Drilldown, Reports,
+                        Settings), mock data, and logic inline. Published at
+                        the repo root so GitHub Pages works with the default
+                        "/(root)" source.
+manifest.json, service-worker.js, icons/, splash/, .nojekyll, 404.html
+                       Supporting PWA files for the root build.
 docs/                  Identical copy of the above, for the "/docs" Pages
                        source option instead, if you prefer that layout.
 tools/generate-icons.py  Regenerates icons/ and splash/ (needs Pillow).
@@ -26,7 +29,7 @@ api/
   field-transactions/   create.php, list.php, retry.php
   owner/                 dashboard.php
 public/                  Backend-connected PWA build — needs api/ + a real MySQL host
-  index.html             App shell
+  index.html             App shell (phone/OTP login, real fetch() calls to api/)
   app.js                 Router, screens, real fetch() calls to api/
   queue.js               IndexedDB offline queue for check-in / log outcome
   service-worker.js      Workbox — precaches the shell, NetworkOnly for /api/
