@@ -85,15 +85,31 @@ function renderTopbar() {
     top.innerHTML = `<div class="brand"><span class="dot"></span> TallyField</div>`;
     return;
   }
+  const connChip = state.online
+    ? `<span class="conn-chip conn-online" title="Online"><span class="conn-dot"></span>Online</span>`
+    : `<span class="conn-chip conn-offline" title="Offline — changes queue locally"><span class="conn-dot"></span>Offline</span>`;
+  const installBtn = deferredInstallPrompt
+    ? `<button class="btn btn-outline btn-sm" id="install-btn" style="width:auto;">Install App</button>`
+    : '';
   top.innerHTML = `
     <div class="brand"><span class="dot"></span> TallyField</div>
     <div class="topbar-spacer"></div>
-    <span class="meta">${esc(state.user?.name || '')}${!state.online ? ' · Offline' : ''}</span>
+    ${connChip}
+    <span class="meta">${esc(state.user?.name || '')}</span>
+    ${installBtn}
     <button class="icon-btn" id="sync-icon-btn" aria-label="Sync status">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg>
     </button>
   `;
   document.getElementById('sync-icon-btn').addEventListener('click', () => nav('sync-status'));
+  const installEl = document.getElementById('install-btn');
+  if (installEl) installEl.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    renderTopbar();
+  });
 }
 function renderBottomNav() {
   const bn = document.getElementById('bottom-nav');
@@ -554,15 +570,39 @@ function render() {
 }
 
 /* ---------------- connectivity + queue flushing ---------------- */
-window.addEventListener('offline', () => { state.online = false; renderTopbar(); });
+window.addEventListener('offline', () => { state.online = false; renderTopbar(); showToast("You're offline — changes will sync when back online"); });
 window.addEventListener('online', () => {
-  state.online = true; renderTopbar();
+  state.online = true; renderTopbar(); showToast('Back online — syncing…');
   window.TallyFieldQueue.flush(api).then(() => { if (state.screen === 'sync-status') loadSyncStatus(); });
 });
 
-/* ---------------- boot ---------------- */
+/* ---------------- PWA install/update plumbing ---------------- */
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js').catch(() => {}));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').then((reg) => {
+      // Workbox's skipWaiting()+clientsClaim() (service-worker.js) mean a
+      // new SW takes over as soon as it's installed — reload once when
+      // that happens so the new assets are actually used.
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+    }).catch(() => {});
+  });
 }
+
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  renderTopbar();
+});
+window.addEventListener('appinstalled', () => { deferredInstallPrompt = null; renderTopbar(); });
+
 if (state.token) window.TallyFieldQueue.flush(api);
 render();

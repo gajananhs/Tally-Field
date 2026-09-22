@@ -4,10 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TallyField</title>
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#0a1628">
-<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icons/icon.svg">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TallyField">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+<link rel="apple-touch-startup-image" href="./splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="./splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="./splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="./splash/splash-1620x2160.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -42,6 +53,15 @@ p{margin:0;}button{font-family:inherit;}a{color:inherit;}
 .icon-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;
   width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .icon-btn svg{width:18px;height:18px;}
+.btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);}
+.btn-outline:hover{border-color:#fff;}
+.conn-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+  padding:5px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
+.conn-dot{width:6px;height:6px;border-radius:50%;}
+.conn-online{background:rgba(31,157,99,.16);color:#4ade9b;}
+.conn-online .conn-dot{background:#1f9d63;}
+.conn-offline{background:rgba(196,127,10,.18);color:#f5b95c;}
+.conn-offline .conn-dot{background:#c47f0a;}
 main{flex:1;padding:16px;padding-bottom:88px;}
 @media (min-width:768px){main{padding:28px 32px 40px;}}
 .screen{max-width:640px;margin:0 auto;}
@@ -53,6 +73,14 @@ main{flex:1;padding:16px;padding-bottom:88px;}
   border-top:1px solid var(--ink-200);display:flex;padding-bottom:var(--safe-bottom);}
 .bottom-nav button{flex:1;background:none;border:none;padding:12px 4px;cursor:pointer;color:var(--ink-400);font-size:12px;font-weight:600;}
 .bottom-nav button[aria-current="true"]{color:var(--blue-500);}
+@media (min-width:900px){
+  .bottom-nav{position:static;border-top:none;background:transparent;padding:0 32px;display:flex;width:auto;gap:4px;order:1;}
+  .bottom-nav button{flex:none;color:var(--ink-600);padding:10px 14px;border-radius:8px;background:var(--surface-0);}
+  .bottom-nav button[aria-current="true"]{color:#fff;background:var(--navy-950);}
+  #app-shell{display:flex;flex-direction:column;}
+  .topbar{order:0;}
+  main{order:2;padding-bottom:40px;}
+}
 .card{background:var(--surface-0);border:1px solid var(--ink-100);border-radius:var(--radius-m);
   box-shadow:var(--shadow-card);padding:16px;}
 .card+.card{margin-top:10px;}
@@ -124,7 +152,7 @@ main{flex:1;padding:16px;padding-bottom:88px;}
   <main id="main" tabindex="-1"></main>
   <nav class="bottom-nav" id="bottom-nav" aria-label="Primary"></nav>
 </div>
-<script src="/queue.js"></script>
-<script src="/app.js"></script>
+<script src="./queue.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>

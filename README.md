@@ -8,27 +8,31 @@ fix from the Release QA Pass already applied.
 ## What's here
 
 ```
-schema.sql            Production schema (scheduled_date + feed index fixes included)
-seed.sql              Dev/demo data only — never run against production
+index.html, app.js, mock.js, queue.js, manifest.json,
+service-worker.js, icons/, splash/, .nojekyll, 404.html
+                       Static, backend-free PWA build — published at the
+                       repo root so GitHub Pages works with the default
+                       "/(root)" source setting. See DEPLOY.md.
+docs/                  Identical copy of the above, for the "/docs" Pages
+                       source option instead, if you prefer that layout.
+tools/generate-icons.py  Regenerates icons/ and splash/ (needs Pillow).
+schema.sql             Production schema (scheduled_date + feed index fixes included)
+seed.sql               Dev/demo data only — never run against production
 api/
-  config.php           DB connection, requireAuth(), error logging
-  auth/                send-otp.php, verify-otp.php, logout.php
-  visits/              list.php, checkin.php
-  customers/           get.php
-  field-transactions/  create.php, list.php, retry.php
-  owner/                dashboard.php
-public/                 Backend-connected build — needs api/ + a real MySQL host
-  index.html            App shell
-  app.js                Router, screens, real fetch() calls to api/
-  queue.js              IndexedDB offline queue for check-in / log outcome
-  service-worker.js     App-shell caching for offline load
-  manifest.json          PWA installability
-  icons/                 Placeholder SVG icons (swap for real artwork before wide release)
-docs/                  Static, backend-free build — deployable straight to GitHub Pages
-  (same screens as public/, wired to docs/mock.js's localStorage-backed
-  mock API instead of api/ — see DEPLOY.md for the full explanation and
-  a pre-publish test checklist)
-DEPLOY.md              GitHub Pages setup steps for docs/
+  config.php            DB connection, requireAuth(), error logging
+  auth/                 send-otp.php, verify-otp.php, logout.php
+  visits/               list.php, checkin.php
+  customers/             get.php
+  field-transactions/   create.php, list.php, retry.php
+  owner/                 dashboard.php
+public/                  Backend-connected PWA build — needs api/ + a real MySQL host
+  index.html             App shell
+  app.js                 Router, screens, real fetch() calls to api/
+  queue.js               IndexedDB offline queue for check-in / log outcome
+  service-worker.js      Workbox — precaches the shell, NetworkOnly for /api/
+  manifest.json           PWA installability
+  icons/, splash/         Same generated icon/splash set as the root build
+DEPLOY.md               GitHub Pages setup steps, PWA implementation notes, test checklist
 ```
 
 ## QA fixes already applied here

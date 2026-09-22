@@ -1,56 +1,86 @@
 // ============================================================
-// TallyField — service worker
-// Caches the app shell for offline load. API calls are handled by the
-// app's own IndexedDB queue (see queue.js), not by the service worker —
-// POSTs need idempotency keys and business-logic retry, which belongs
-// in application code, not a generic fetch-intercept.
+// TallyField — service worker (Workbox, backend-connected build)
+// Registered as ./service-worker.js (relative) so it works whether this
+// is deployed at a domain root or a subpath. API calls under /api/ are
+// explicitly excluded from every cache — they carry session tokens and
+// must always reach the real PHP backend, or fail so the app's own
+// IndexedDB queue (queue.js) can take over. Nothing about the database
+// or server-side behavior changes here; this file only affects what the
+// browser caches.
 // ============================================================
 
-const CACHE_NAME = 'tallyfield-shell-v1';
-const SHELL_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon.svg',
-  '/icons/icon-maskable.svg',
-];
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES))
+const VERSION = 'v2';
+
+if (workbox) {
+  workbox.setConfig({ debug: false });
+  workbox.core.skipWaiting();
+  workbox.core.clientsClaim();
+
+  workbox.precaching.precacheAndRoute([
+    { url: './', revision: VERSION },
+    { url: './index.html', revision: VERSION },
+    { url: './app.js', revision: VERSION },
+    { url: './queue.js', revision: VERSION },
+    { url: './manifest.json', revision: VERSION },
+    { url: './icons/icon-192.png', revision: VERSION },
+    { url: './icons/icon-512.png', revision: VERSION },
+    { url: './icons/icon-maskable-192.png', revision: VERSION },
+    { url: './icons/icon-maskable-512.png', revision: VERSION },
+    { url: './icons/icon.svg', revision: VERSION },
+    { url: './icons/apple-touch-icon.png', revision: VERSION },
+  ]);
+
+  // Never cache the API — always hit the network, and let a failure
+  // surface to the app's own queue/error handling instead of serving a
+  // stale cached response for a POST that changes data.
+  workbox.routing.registerRoute(
+    ({ url }) => url.pathname.includes('/api/'),
+    new workbox.strategies.NetworkOnly()
   );
-  self.skipWaiting();
-});
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // Never cache API calls — they carry auth tokens and must always hit
-  // the network (or fail explicitly so the app's own queue can handle it).
-  if (url.pathname.startsWith('/api/')) {
-    return;
-  }
-
-  // App shell: cache-first, so the app still opens with no signal.
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (response.ok && event.request.method === 'GET') {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        }
-        return response;
-      }).catch(() => caches.match('/index.html'));
+  workbox.routing.registerRoute(
+    ({ request }) => request.mode === 'navigate',
+    new workbox.strategies.NetworkFirst({
+      cacheName: 'tallyfield-pages',
+      networkTimeoutSeconds: 3,
+      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 10 })],
     })
   );
-});
+
+  workbox.routing.registerRoute(
+    ({ url }) => url.origin === 'https://fonts.googleapis.com',
+    new workbox.strategies.StaleWhileRevalidate({ cacheName: 'google-fonts-stylesheets' })
+  );
+  workbox.routing.registerRoute(
+    ({ url }) => url.origin === 'https://fonts.gstatic.com',
+    new workbox.strategies.CacheFirst({
+      cacheName: 'google-fonts-webfonts',
+      plugins: [
+        new workbox.cacheableResponse.CacheableResponsePlugin({ statuses: [0, 200] }),
+        new workbox.expiration.ExpirationPlugin({ maxAgeSeconds: 60 * 60 * 24 * 365, maxEntries: 30 }),
+      ],
+    })
+  );
+
+  workbox.routing.registerRoute(
+    ({ request, url }) => !url.pathname.includes('/api/') && ['image', 'font'].includes(request.destination),
+    new workbox.strategies.CacheFirst({
+      cacheName: 'tallyfield-assets',
+      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 })],
+    })
+  );
+} else {
+  const CACHE_NAME = 'tallyfield-shell-fallback';
+  const SHELL = ['./', './index.html', './app.js', './queue.js', './manifest.json'];
+  self.addEventListener('install', (e) => {
+    e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(SHELL)));
+    self.skipWaiting();
+  });
+  self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+  self.addEventListener('fetch', (e) => {
+    if (e.request.method !== 'GET' || e.request.url.includes('/api/')) return;
+    e.respondWith(caches.match(e.request).then((c) => c || fetch(e.request).catch(() => caches.match('./index.html'))));
+  });
+}
