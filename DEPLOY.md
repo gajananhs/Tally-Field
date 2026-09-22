@@ -192,3 +192,83 @@ not just `file://`:
 - [ ] Push a small change, redeploy, reopen the app with it already running in a tab — it reloads itself once and picks up the new version
 - [ ] Visit a nonsense sub-path of the Pages URL directly — `404.html` bounces you back to the app
 - [ ] Run Chrome DevTools → Lighthouse → PWA audit against the published URL — installability and service-worker checks should pass
+
+## 10. Real OTP login (SMS gateway + JWT)
+
+Login now talks to a real backend — `api/auth/send-otp.php` and
+`api/auth/verify-otp.php` — instead of the local, hardcoded demo lookup.
+The rest of the app (customers, visits, transactions, reports) is
+unchanged and still runs on local mock data in every build; **only
+authentication is real now.**
+
+### Setup
+
+1. Copy `api/.env.example` to `api/.env` and fill in real values — never
+   commit the real `.env`.
+2. Generate a JWT secret: `php -r "echo bin2hex(random_bytes(32));"` —
+   paste the output as `JWT_SECRET`. A short or missing secret makes
+   `issueJwt()` throw on purpose rather than sign with something guessable.
+3. Pick one SMS provider and set `SMS_PROVIDER` to `msg91`, `twilio`, or
+   `fast2sms`, then fill in that provider's credentials only:
+   - **MSG91** (default, India-focused) needs `MSG91_AUTH_KEY` and a
+     **DLT-registered** `MSG91_TEMPLATE_ID` — Indian carriers reject
+     transactional SMS without one; MSG91's dashboard walks through
+     template registration.
+   - **Twilio** needs `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`,
+     `TWILIO_FROM_NUMBER` — works outside India too, no DLT template needed.
+   - **Fast2SMS** needs only `FAST2SMS_API_KEY` — simplest to set up for
+     an India-only pilot, no template pre-registration for its `otp` route.
+4. Run the updated `schema.sql` (adds the `revoked_tokens` table used for
+   logout) against your database if you already ran an earlier version.
+5. If the frontend is hosted separately from this API (see below), set
+   `ALLOWED_ORIGINS` to that frontend's exact origin.
+
+### Wiring the root/`docs/` GitHub Pages build to this API
+
+GitHub Pages only serves static files — it cannot run `api/*.php` itself.
+So the root and `docs/` builds' `index.html` now points its login calls
+at an `API_BASE` constant near the top of the script:
+
+```js
+const API_BASE = 'https://your-api-domain.example.com/api';
+```
+
+Deploy the `api/` folder somewhere that runs PHP (the same Hostinger
+subdomain used for the `public/` build works fine) and change
+`API_BASE` to that URL before publishing. Until you do, the login
+screen will show "Couldn't reach the server — check your connection and
+API_BASE" — that message is doing its job, not a bug. Once it's set,
+also add the GitHub Pages URL to `ALLOWED_ORIGINS` in `api/.env` so the
+browser's CORS preflight succeeds.
+
+The `public/` build doesn't need any of this — it already shares an
+origin with `api/` (same Hostinger deployment), so `ALLOWED_ORIGINS`
+can stay empty for it.
+
+### What changed under the hood
+
+- **Real SMS delivery** — `send-otp.php` calls the configured provider
+  and only stores the OTP hash once the gateway confirms it accepted
+  the message; a gateway failure returns `502 sms_send_failed` with a
+  message the frontend shows verbatim, rather than pretending an SMS
+  that was never sent is on its way.
+- **Distinct verify errors** — `verify-otp.php` now tells `otp_expired`
+  apart from `otp_mismatch` and `otp_not_requested`, so the frontend can
+  say "request a new one" instead of a generic "wrong code" when that's
+  not actually what happened.
+- **JWT sessions** — `verify-otp.php` issues a signed JWT (hand-rolled
+  HS256 in `config.php`, no Composer dependency) instead of the earlier
+  opaque-token-in-a-`sessions`-row scheme. `requireAuth()` in every
+  other endpoint verifies the signature and expiry directly — same
+  return shape as before, so nothing else in `api/` needed to change.
+- **Real logout** — since JWTs are stateless, `logout.php` records the
+  token's `jti` in `revoked_tokens` so `requireAuth()` rejects it
+  immediately instead of waiting out its natural expiry.
+- **No more identity-switcher shortcut** — the previous build's top-bar
+  "switch to any seeded user instantly" convenience is gone; with real
+  OTP behind it, that would have been a login bypass. The Account modal
+  is now just the current user's info and a real Log Out.
+- **Settings' rep management is explicitly local-only now** — adding a
+  rep there updates the mock `db` so the rest of the demo reflects it,
+  but doesn't create a row in the real `users` table, so that person
+  couldn't actually sign in. The screen says so.

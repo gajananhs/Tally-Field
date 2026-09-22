@@ -8,12 +8,15 @@ fix from the Release QA Pass already applied.
 ## What's here
 
 ```
-index.html             Complete, self-contained PWA — all 10 screens (Login,
-                        Rep Home, Customer Detail, Check-in, Log Outcome, Sync
-                        Status, Owner Dashboard, Rep Drilldown, Reports,
-                        Settings), mock data, and logic inline. Published at
-                        the repo root so GitHub Pages works with the default
-                        "/(root)" source.
+index.html             Complete PWA — all 10 screens (Login, Rep Home,
+                        Customer Detail, Check-in, Log Outcome, Sync Status,
+                        Owner Dashboard, Rep Drilldown, Reports, Settings).
+                        Login calls the real OTP backend at the API_BASE
+                        constant near the top of the script — set that to
+                        wherever api/ is deployed (see DEPLOY.md §10).
+                        Everything else still runs on local mock data.
+                        Published at the repo root so GitHub Pages works
+                        with the default "/(root)" source.
 manifest.json, service-worker.js, icons/, splash/, .nojekyll, 404.html
                        Supporting PWA files for the root build.
 docs/                  Identical copy of the above, for the "/docs" Pages
@@ -22,7 +25,8 @@ tools/generate-icons.py  Regenerates icons/ and splash/ (needs Pillow).
 schema.sql             Production schema (scheduled_date + feed index fixes included)
 seed.sql               Dev/demo data only — never run against production
 api/
-  config.php            DB connection, requireAuth(), error logging
+  .env.example           Copy to api/.env — DB, JWT_SECRET, SMS_PROVIDER, CORS
+  config.php            DB connection, requireAuth() (JWT), sendOtpSms(), error logging
   auth/                 send-otp.php, verify-otp.php, logout.php
   visits/               list.php, checkin.php
   customers/             get.php

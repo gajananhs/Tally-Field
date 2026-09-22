@@ -6,26 +6,36 @@ $body = json_body();
 $phone = trim($body['phone'] ?? '');
 $otp = trim($body['otp'] ?? '');
 
-if (!preg_match('/^\d{4,6}$/', $otp)) {
-    respond(422, ['error' => 'otp_invalid', 'message' => 'Wrong code, try again']);
+if (!preg_match('/^\d{6}$/', $otp)) {
+    respond(422, ['error' => 'otp_invalid', 'message' => 'Enter the 6-digit code']);
 }
 
 $stmt = $pdo->prepare('SELECT id, tenant_id, role, name FROM users WHERE phone = ? AND is_active = 1 LIMIT 1');
 $stmt->execute([$phone]);
 $user = $stmt->fetch();
 if (!$user) {
-    // Same shape as a wrong code — see send-otp.php's enumeration fix.
+    // Same shape as a wrong/expired code below — never confirms whether
+    // the phone itself is registered.
     respond(401, ['error' => 'otp_mismatch', 'message' => 'Wrong code, try again']);
 }
 
+// Look up the most recent code REGARDLESS of expiry, so an expired code
+// can be reported as "expired" rather than a generic "wrong code" — the
+// fix is different (request a new one vs. just retype it).
 $stmt = $pdo->prepare(
-    'SELECT id, code_hash, attempts FROM otp_codes WHERE user_id = ? AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1'
+    'SELECT id, code_hash, attempts, expires_at FROM otp_codes WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
 );
 $stmt->execute([$user['id']]);
 $code = $stmt->fetch();
 
-if (!$code || $code['attempts'] >= 5) {
-    respond(429, ['error' => 'too_many_attempts', 'message' => 'Too many attempts — try again in 5 min']);
+if (!$code) {
+    respond(404, ['error' => 'otp_not_requested', 'message' => 'Request a code first']);
+}
+if (strtotime($code['expires_at']) < time()) {
+    respond(410, ['error' => 'otp_expired', 'message' => 'Code expired — request a new one']);
+}
+if ($code['attempts'] >= 5) {
+    respond(429, ['error' => 'too_many_attempts', 'message' => 'Too many attempts — request a new code']);
 }
 
 if (!hash_equals($code['code_hash'], hash('sha256', $otp))) {
@@ -33,17 +43,20 @@ if (!hash_equals($code['code_hash'], hash('sha256', $otp))) {
     respond(401, ['error' => 'otp_mismatch', 'message' => 'Wrong code, try again']);
 }
 
+// Success — burn the code so it can't be replayed, then issue a JWT.
 $pdo->prepare('DELETE FROM otp_codes WHERE user_id = ?')->execute([$user['id']]);
 
-$token = bin2hex(random_bytes(32));
-$expiresInterval = $user['role'] === 'rep' ? '30 DAY' : '7 DAY';
-$pdo->prepare(
-    "INSERT INTO sessions (id, tenant_id, user_id, token_hash, expires_at)
-     VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL $expiresInterval))"
-)->execute([uuid(), $user['tenant_id'], $user['id'], hash('sha256', $token)]);
+$ttl = $user['role'] === 'rep' ? 60 * 24 * 30 : 60 * 24 * 7; // reps stay signed in longer (field devices); owners 7 days
+$jwt = issueJwt([
+    'sub' => $user['id'],
+    'tenant_id' => $user['tenant_id'],
+    'role' => $user['role'],
+    'name' => $user['name'],
+], $ttl);
 
 respond(200, [
-    'token' => $token,
+    'token' => $jwt['token'],
+    'expires_at' => date('c', $jwt['exp']),
     'user' => ['id' => $user['id'], 'name' => $user['name'], 'role' => $user['role']],
     'tenant_id' => $user['tenant_id'],
 ]);

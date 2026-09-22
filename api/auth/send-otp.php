@@ -13,26 +13,43 @@ $stmt = $pdo->prepare('SELECT id, tenant_id FROM users WHERE phone = ? AND is_ac
 $stmt->execute([$phone]);
 $user = $stmt->fetch();
 
-// Fix for QA Defect 4: identical response whether or not the number is
-// registered, so this endpoint can't be used to enumerate valid phones.
+// Same response shape whether or not the number is registered, so this
+// endpoint can't be used to enumerate valid phone numbers (see the QA
+// pass on the earlier mock build — this fix is now load-bearing since a
+// real SMS gateway is behind it).
 if ($user) {
-    // Fix for QA Defect 1: rate-limit per user before generating a new
-    // code — otherwise resending resets the wrong-guess counter forever.
+    // Rate-limit per user before generating a new code, and before
+    // spending real SMS-gateway credits — five sends per hour is
+    // generous for a genuine user, punishing for an abuse script.
     $rate = $pdo->prepare(
         'SELECT COUNT(*) AS n FROM otp_codes WHERE user_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)'
     );
     $rate->execute([$user['id']]);
+
     if ((int) $rate->fetch()['n'] < 5) {
-        $pdo->prepare('DELETE FROM otp_codes WHERE user_id = ?')->execute([$user['id']]);
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $sent = sendOtpSms($phone, $code);
+
+        if (!$sent) {
+            // A real, surfaceable failure — the gateway is down, out of
+            // credit, or misconfigured. Don't pretend it was sent: the
+            // user needs to know to retry rather than wait forever for
+            // an SMS that's never coming. This does confirm the number
+            // is registered on a *failure* path only, which is an
+            // acceptable trade-off for honest error handling — see
+            // DEPLOY.md's OTP & SMS section for the reasoning.
+            respond(502, ['error' => 'sms_send_failed', 'message' => "Couldn't send the code — try again in a moment"]);
+        }
+
+        // Only store the code once the SMS gateway has actually accepted
+        // it — an OTP nobody received but that's already live in the DB
+        // just wastes one of the user's five attempts for nothing.
+        $pdo->prepare('DELETE FROM otp_codes WHERE user_id = ?')->execute([$user['id']]);
         $pdo->prepare(
             'INSERT INTO otp_codes (id, user_id, code_hash, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))'
         )->execute([uuid(), $user['id'], hash('sha256', $code)]);
-
-        // BACKEND: send $code via SMS gateway here — never returned in the response.
-        // sendSms($phone, "Your TallyField code is $code");
     }
-    // If over the hourly limit, silently do nothing — same 200 response
+    // Over the hourly limit: silently do nothing — identical response
     // either way, so a caller can't distinguish "rate limited" from "sent".
 }
 

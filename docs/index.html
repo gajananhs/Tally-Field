@@ -9,20 +9,12 @@
 <meta name="color-scheme" content="dark light">
 <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
 <link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png">
-
-<!-- iOS: standalone install + status bar + home screen icon -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TallyField">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-
-<!-- iOS splash screens (Android/Chrome generates its own from the manifest
-     icon + background_color automatically — no meta tags needed there) -->
 <link rel="apple-touch-startup-image" href="./splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
 <link rel="apple-touch-startup-image" href="./splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
-<link rel="apple-touch-startup-image" href="./splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
-<link rel="apple-touch-startup-image" href="./splash/splash-1620x2160.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2)">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -47,18 +39,13 @@ h1,h2,h3{font-family:var(--font-display);margin:0;font-weight:600;letter-spacing
 p{margin:0;}button{font-family:inherit;}a{color:inherit;}
 :focus-visible{outline:2px solid var(--blue-500);outline-offset:2px;}
 @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
-#app-shell{max-width:1200px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
-.topbar{position:sticky;top:0;z-index:20;background:var(--navy-950);color:#fff;
-  padding:calc(12px + var(--safe-top)) 16px 12px;display:flex;align-items:center;gap:12px;}
-.topbar .brand{font-family:var(--font-display);font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px;}
-.topbar .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--blue-400);}
+#app-shell{max-width:1280px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+.topbar{position:sticky;top:0;z-index:30;background:var(--navy-950);color:#fff;
+  padding:calc(12px + var(--safe-top)) 16px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.brand{font-family:var(--font-display);font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px;}
+.brand .dot{width:8px;height:8px;border-radius:50%;background:var(--blue-400);}
 .topbar-spacer{flex:1;}
-.topbar .meta{font-size:12px;color:var(--ink-200);}
-.icon-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;
-  width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.icon-btn svg{width:18px;height:18px;}
-.btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);}
-.btn-outline:hover{border-color:#fff;}
 .conn-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
   padding:5px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
 .conn-dot{width:6px;height:6px;border-radius:50%;}
@@ -66,100 +53,1156 @@ p{margin:0;}button{font-family:inherit;}a{color:inherit;}
 .conn-online .conn-dot{background:#1f9d63;}
 .conn-offline{background:rgba(196,127,10,.18);color:#f5b95c;}
 .conn-offline .conn-dot{background:#c47f0a;}
-main{flex:1;padding:16px;padding-bottom:88px;}
-@media (min-width:768px){main{padding:28px 32px 40px;}}
-.screen{max-width:640px;margin:0 auto;}
-.screen-wide{max-width:1080px;margin:0 auto;}
-.screen-header{margin-bottom:18px;}
-.screen-header h1{font-size:22px;}
-.screen-header .sub{color:var(--ink-600);font-size:14px;margin-top:4px;}
-.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface-0);
-  border-top:1px solid var(--ink-200);display:flex;padding-bottom:var(--safe-bottom);}
-.bottom-nav button{flex:1;background:none;border:none;padding:12px 4px;cursor:pointer;color:var(--ink-400);font-size:12px;font-weight:600;}
-.bottom-nav button[aria-current="true"]{color:var(--blue-500);}
-/* Desktop/tablet: nav moves inline in the top bar instead of a bottom
-   tab strip, and the app gets breathing room instead of a phone-width column. */
-@media (min-width:900px){
-  .bottom-nav{position:static;border-top:none;background:transparent;padding:0 32px;display:flex;width:auto;gap:4px;order:1;}
-  .bottom-nav button{flex:none;color:var(--ink-600);padding:10px 14px;border-radius:8px;background:var(--surface-0);}
-  .bottom-nav button[aria-current="true"]{color:#fff;background:var(--navy-950);}
-  #app-shell{display:flex;flex-direction:column;}
-  .topbar{order:0;}
-  main{order:2;padding-bottom:40px;}
-}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;padding:4px 12px 4px 4px;cursor:pointer;}
+.user-chip .avatar{width:24px;height:24px;font-size:11px;}
+.user-chip span{font-size:12px;font-weight:600;}
+.icon-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;
+  width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.icon-btn svg{width:17px;height:17px;}
+.badge-dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:999px;background:var(--amber-500);
+  border:2px solid var(--navy-950);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;color:#0a1628;padding:0 3px;}
+
+.tabbar{position:sticky;top:60px;z-index:25;background:var(--navy-900);display:flex;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;padding:0 12px;border-bottom:1px solid var(--navy-700);}
+.tabbar::-webkit-scrollbar{display:none;}
+.tabbar button{flex:0 0 auto;background:none;border:none;color:rgba(255,255,255,.6);padding:12px 15px;
+  font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.tabbar button[aria-current="true"]{color:#fff;border-bottom-color:var(--blue-400);}
+
+main{flex:1;padding:20px 16px 60px;}
+@media (min-width:768px){main{padding:26px 32px 60px;}}
+.screen{max-width:760px;margin:0 auto;}
+.screen-wide{max-width:1120px;margin:0 auto;}
+.screen-header{margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.screen-header h1{font-size:21px;}
+.screen-header .sub{color:var(--ink-600);font-size:13px;margin-top:4px;}
+.back-link{background:none;border:none;color:var(--blue-500);font-weight:600;font-size:13px;cursor:pointer;padding:0 0 10px;display:inline-block;}
+
 .card{background:var(--surface-0);border:1px solid var(--ink-100);border-radius:var(--radius-m);
   box-shadow:var(--shadow-card);padding:16px;}
 .card+.card{margin-top:10px;}
-.stack{display:flex;flex-direction:column;gap:10px;}
+.stack{display:flex;flex-direction:column;gap:12px;}
 .row{display:flex;align-items:center;gap:10px;}
-.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15px;
-  border-radius:var(--radius-s);padding:12px 18px;border:1px solid transparent;cursor:pointer;width:100%;}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;
+  border-radius:var(--radius-s);padding:11px 18px;border:1px solid transparent;cursor:pointer;}
 .btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-block{width:100%;}
 .btn-primary{background:var(--blue-500);color:#fff;}
+.btn-primary:hover{background:#2960d4;}
 .btn-secondary{background:var(--surface-0);color:var(--navy-950);border-color:var(--ink-200);}
-.btn-ghost{background:none;border:none;color:var(--blue-500);width:auto;padding:6px 2px;}
-.btn-sm{padding:8px 12px;font-size:13px;width:auto;}
+.btn-secondary:hover{background:var(--surface-1);}
+.btn-danger{background:none;color:var(--red-500);border:none;}
+.btn-ghost{background:none;border:none;color:var(--blue-500);}
+.btn-sm{padding:7px 12px;font-size:13px;}
 .field{display:flex;flex-direction:column;gap:6px;}
 .field label{font-size:13px;font-weight:600;color:var(--ink-600);}
-.field input,.field select,.field textarea{font-family:inherit;font-size:16px;padding:11px 12px;
-  border-radius:var(--radius-s);border:1px solid var(--ink-200);width:100%;}
+.field input,.field select,.field textarea{font-family:inherit;font-size:15px;padding:10px 12px;
+  border-radius:var(--radius-s);border:1px solid var(--ink-200);width:100%;background:#fff;color:var(--ink-900);}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue-500);}
 .field.invalid input{border-color:var(--red-500);}
 .field-error{font-size:12px;color:var(--red-500);}
 .field-hint{font-size:12px;color:var(--ink-400);}
-.chip{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 9px;border-radius:999px;white-space:nowrap;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:520px){.field-row{grid-template-columns:1fr;}}
+.chip{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap;}
 .chip-neutral{background:var(--ink-100);color:var(--ink-600);}
 .chip-blue{background:var(--blue-050);color:var(--blue-500);}
 .chip-green{background:var(--green-050);color:var(--green-500);}
 .chip-amber{background:var(--amber-050);color:var(--amber-500);}
-.banner{border-radius:var(--radius-s);padding:11px 14px;font-size:13px;font-weight:500;}
+.chip-red{background:var(--red-050);color:var(--red-500);}
+.banner{border-radius:var(--radius-s);padding:11px 14px;font-size:13px;font-weight:500;margin-bottom:14px;}
 .banner-amber{background:var(--amber-050);color:#7a5106;}
-.empty-state{text-align:center;padding:40px 20px;color:var(--ink-600);}
+.banner-red{background:var(--red-050);color:#8f2f28;}
+.empty-state{text-align:center;padding:44px 20px;color:var(--ink-600);}
 .empty-state h3{font-size:16px;margin-bottom:6px;color:var(--ink-900);}
 .empty-state p{font-size:13px;margin-bottom:16px;}
 .skeleton{background:linear-gradient(90deg,var(--ink-100) 25%,var(--ink-200) 37%,var(--ink-100) 63%);
   background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:var(--radius-s);}
 @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
-.skel-card{height:76px;margin-bottom:10px;}
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media (min-width:600px){.kpi-grid{grid-template-columns:repeat(4,1fr);}}
+.skel-card{height:78px;margin-bottom:10px;}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (min-width:640px){.kpi-grid{grid-template-columns:repeat(4,1fr);}}
 .kpi-tile{background:var(--surface-0);border:1px solid var(--ink-100);border-radius:var(--radius-m);
-  padding:14px;box-shadow:var(--shadow-card);}
+  padding:16px;box-shadow:var(--shadow-card);text-align:left;cursor:pointer;}
+.kpi-tile:hover{border-color:var(--blue-400);}
 .kpi-tile .label{font-size:12px;color:var(--ink-600);font-weight:600;}
-.kpi-tile .value{font-family:var(--font-display);font-size:22px;font-weight:700;margin-top:4px;}
-.toggle-group{display:flex;background:var(--ink-100);border-radius:var(--radius-s);padding:3px;gap:3px;}
-.toggle-group button{flex:1;border:none;background:transparent;padding:9px 6px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;color:var(--ink-600);}
+.kpi-tile .value{font-family:var(--font-display);font-size:23px;font-weight:700;margin-top:4px;}
+.toggle-group{display:flex;background:var(--ink-100);border-radius:var(--radius-s);padding:3px;gap:3px;flex-wrap:wrap;}
+.toggle-group button{flex:1;min-width:90px;border:none;background:transparent;padding:9px 8px;border-radius:6px;
+  cursor:pointer;font-weight:600;font-size:13px;color:var(--ink-600);}
 .toggle-group button[aria-pressed="true"]{background:var(--surface-0);color:var(--navy-950);box-shadow:var(--shadow-card);}
+.section-title{font-size:13px;font-weight:700;color:var(--ink-600);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.03em;}
+.section-title:first-child{margin-top:0;}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-400);
+  padding:9px 10px;border-bottom:1px solid var(--ink-200);white-space:nowrap;}
+td{padding:11px 10px;border-bottom:1px solid var(--ink-100);white-space:nowrap;}
+tr.clickable{cursor:pointer;}
+tr.clickable:hover td{background:var(--surface-1);}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-050);color:var(--blue-500);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+.feed-row{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--ink-100);}
+.feed-row:last-child{border-bottom:none;}
+.map-box{border-radius:var(--radius-m);background:linear-gradient(135deg,var(--navy-900),var(--navy-800));
+  color:#fff;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.map-pin-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,.06);border-radius:8px;cursor:pointer;}
+.map-pin-row:hover{background:rgba(255,255,255,.1);}
+.pin-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.single-pin{height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+.photo-slot{border-radius:var(--radius-m);border:2px dashed var(--ink-200);padding:20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  color:var(--ink-400);background:var(--surface-0);cursor:pointer;width:100%;text-align:center;}
+.photo-slot.has-photo{border-style:solid;color:var(--navy-950);border-color:var(--green-500);}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy-950);color:#fff;
+  padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:100;max-width:90vw;text-align:center;}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,22,40,.5);z-index:80;display:flex;
+  align-items:flex-end;justify-content:center;padding:0;}
+@media (min-width:640px){.modal-overlay{align-items:center;padding:24px;}}
+.modal{background:#fff;border-radius:18px 18px 0 0;max-width:520px;width:100%;max-height:92vh;
+  overflow-y:auto;padding:22px;box-shadow:0 -8px 30px rgba(0,0,0,.2);}
+@media (min-width:640px){.modal{border-radius:18px;}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.modal-close{background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink-400);padding:4px;}
+
+/* login */
 .login-wrap{min-height:calc(100vh - 2px);display:flex;align-items:center;justify-content:center;padding:24px;}
 .login-card{width:100%;max-width:360px;}
 .login-logo{width:52px;height:52px;border-radius:14px;background:var(--navy-950);color:#fff;
   display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:20px;margin:0 auto 16px;}
-.map-box{height:140px;border-radius:var(--radius-m);background:linear-gradient(135deg,var(--navy-900),var(--navy-800));
-  color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
-.photo-slot{aspect-ratio:4/3;max-height:160px;border-radius:var(--radius-m);border:2px dashed var(--ink-200);
-  display:flex;align-items:center;justify-content:center;color:var(--ink-400);background:var(--surface-0);cursor:pointer;width:100%;}
-.photo-slot.has-photo{border-style:solid;color:var(--navy-950);}
-.sync-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--ink-100);}
-.sync-row:last-child{border-bottom:none;}
-.sync-meta{font-size:12px;color:var(--ink-600);}
-.section-title{font-size:14px;font-weight:700;color:var(--ink-600);margin:18px 0 8px;}
-.section-title:first-child{margin-top:0;}
-.feed-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--ink-100);}
-.feed-row:last-child{border-bottom:none;}
-.avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-050);color:var(--blue-500);
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
 </style>
 </head>
 <body>
+<a href="#main" class="visually-hidden">Skip to content</a>
 <div id="app-shell">
   <header class="topbar" id="topbar"></header>
+  <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
   <main id="main" tabindex="-1"></main>
-  <nav class="bottom-nav" id="bottom-nav" aria-label="Primary"></nav>
 </div>
-<script src="./mock.js"></script>
-<script src="./queue.js"></script>
-<script src="./app.js"></script>
+<div id="modal-root"></div>
+
+<script>
+/* ================================================================
+   TallyField — complete SPA, single file, no build step.
+   All "backend" tables live in localStorage (TF_DB_KEY); the logged-in
+   user's session lives separately (TF_SESSION_KEY) so a refresh keeps
+   you signed in but a fresh browser/profile starts at Login.
+   ================================================================ */
+
+const TF_DB_KEY = 'tallyfield_v2_db';
+const TF_SESSION_KEY = 'tallyfield_v2_session';
+const TF_TOKEN_KEY = 'tallyfield_v2_token';
+
+// The real OTP/auth backend from api/auth/*.php — GitHub Pages can't run
+// PHP itself, so this must point at wherever that folder is actually
+// deployed (e.g. a Hostinger subdomain). Everything else in this file
+// (customers, visits, transactions) still runs on the local mock
+// `db` object below; only login now talks to a real server. See
+// DEPLOY.md's "Real OTP login" section before changing this.
+const API_BASE = 'https://your-api-domain.example.com/api';
+
+/* ---------------- seed data ---------------- */
+function seedDb() {
+  const now = new Date();
+  const iso = (d) => d.toISOString();
+  const dateOnly = (d) => d.toISOString().slice(0, 10);
+  const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d; };
+  const today = dateOnly(now);
+
+  return {
+    tenants: [{ id: 't1', company_name: 'Canares Automation Pvt Ltd', tally_company_name: 'Canares Group of Company', plan: 'trial' }],
+    users: [
+      { id: 'u_owner1', tenant_id: 't1', role: 'owner', name: 'Gajanan', phone: '9000000000' },
+      { id: 'u_rep1', tenant_id: 't1', role: 'rep', name: 'Suresh K.', phone: '9000000001' },
+      { id: 'u_rep2', tenant_id: 't1', role: 'rep', name: 'Meena R.', phone: '9000000002' },
+      { id: 'u_rep3', tenant_id: 't1', role: 'rep', name: 'Farhan A.', phone: '9000000003' },
+    ],
+    tally_parties: [
+      { id: 'tp1', tenant_id: 't1', ledger_name: 'Bharat Filtration Co.', balance: 84200, last_synced_at: iso(now) },
+      { id: 'tp2', tenant_id: 't1', ledger_name: 'Shree Valves & Fittings', balance: 0, last_synced_at: iso(now) },
+      { id: 'tp3', tenant_id: 't1', ledger_name: 'Konkan Pneumatics', balance: 216500, last_synced_at: iso(daysAgo(0)) },
+      { id: 'tp4', tenant_id: 't1', ledger_name: 'Deccan Hydraulics', balance: 45300, last_synced_at: iso(now) },
+      { id: 'tp5', tenant_id: 't1', ledger_name: 'Coastal Pipes & Fittings', balance: 128750, last_synced_at: iso(daysAgo(1)) },
+    ],
+    customers: [
+      { id: 'c1', tenant_id: 't1', tally_party_id: 'tp1', name: 'Bharat Filtration Co.', address: 'Peenya Industrial Area, Bangalore', phone: '9876500001', gstin: '29ABCDE1234F1Z5', assigned_rep_id: 'u_rep1', gps_lat: 13.0280, gps_lng: 77.5200 },
+      { id: 'c2', tenant_id: 't1', tally_party_id: 'tp2', name: 'Shree Valves & Fittings', address: 'Dabaspet, Bangalore', phone: '9876500002', gstin: '29PQRSX5678K2Z1', assigned_rep_id: 'u_rep1', gps_lat: 13.2670, gps_lng: 77.2530 },
+      { id: 'c3', tenant_id: 't1', tally_party_id: 'tp3', name: 'Konkan Pneumatics', address: 'Hubli Industrial Estate', phone: '9876500003', gstin: '29LMNOQ4321J3Z8', assigned_rep_id: 'u_rep2', gps_lat: 15.3647, gps_lng: 75.1240 },
+      { id: 'c4', tenant_id: 't1', tally_party_id: 'tp4', name: 'Deccan Hydraulics', address: 'Whitefield, Bangalore', phone: '9876500004', gstin: '29XYZAB8899H4Z2', assigned_rep_id: 'u_rep2', gps_lat: 12.9698, gps_lng: 77.7500 },
+      { id: 'c5', tenant_id: 't1', tally_party_id: 'tp5', name: 'Coastal Pipes & Fittings', address: 'Baikampady Industrial Area, Mangalore', phone: '9876500005', gstin: '29GHJKL2211M5Z9', assigned_rep_id: 'u_rep3', gps_lat: 12.9840, gps_lng: 74.8290 },
+    ],
+    visits: [
+      { id: 'v1', tenant_id: 't1', rep_id: 'u_rep1', customer_id: 'c1', date: today, checkin_time: null, checkin_gps: null, photo_url: null, status: 'not_visited', outcome_type: null, notes: '' },
+      { id: 'v2', tenant_id: 't1', rep_id: 'u_rep1', customer_id: 'c2', date: today, checkin_time: iso(now), checkin_gps: { lat: 13.2665, lng: 77.2528 }, photo_url: null, status: 'checked_in', outcome_type: null, notes: '' },
+      { id: 'v3', tenant_id: 't1', rep_id: 'u_rep2', customer_id: 'c3', date: today, checkin_time: iso(now), checkin_gps: { lat: 15.3644, lng: 75.1238 }, photo_url: 'captured', status: 'completed', outcome_type: 'collection', notes: '' },
+      { id: 'v4', tenant_id: 't1', rep_id: 'u_rep2', customer_id: 'c4', date: today, checkin_time: null, checkin_gps: null, photo_url: null, status: 'not_visited', outcome_type: null, notes: '' },
+      { id: 'v5', tenant_id: 't1', rep_id: 'u_rep3', customer_id: 'c5', date: today, checkin_time: iso(now), checkin_gps: { lat: 12.9838, lng: 74.8285 }, photo_url: 'captured', status: 'completed', outcome_type: 'order', notes: '' },
+    ],
+    field_transactions: [
+      { id: 'ft1', tenant_id: 't1', visit_id: 'v3', rep_id: 'u_rep2', customer_id: 'c3', type: 'collection', amount: 42000, payment_mode: 'Cash', ref_no: '', items_json: null, sync_status: 'synced', claimed_by: 'AGENT-DESK-01', claimed_at: iso(now), tally_voucher_id: 'RCPT-2291', retry_count: 0, error_reason: null, created_at: iso(now) },
+      { id: 'ft2', tenant_id: 't1', visit_id: 'v5', rep_id: 'u_rep3', customer_id: 'c5', type: 'order', amount: null, payment_mode: null, ref_no: '', items_json: [{ item: 'SS Push-Fit Elbow 1/2"', qty: 50 }], sync_status: 'pending', claimed_by: null, claimed_at: null, tally_voucher_id: null, retry_count: 0, error_reason: null, created_at: iso(now) },
+      { id: 'ft3', tenant_id: 't1', visit_id: null, rep_id: 'u_rep1', customer_id: 'c1', type: 'collection', amount: 12000, payment_mode: 'UPI', ref_no: 'UPI2298331', items_json: null, sync_status: 'failed', claimed_by: 'AGENT-DESK-01', claimed_at: iso(daysAgo(1)), tally_voucher_id: null, retry_count: 2, error_reason: 'Ledger name mismatch in Tally', created_at: iso(daysAgo(1)) },
+      { id: 'ft4', tenant_id: 't1', visit_id: null, rep_id: 'u_rep2', customer_id: 'c4', type: 'collection', amount: 15000, payment_mode: 'UPI', ref_no: 'UPI2298401', items_json: null, sync_status: 'synced', claimed_by: 'AGENT-DESK-01', claimed_at: iso(daysAgo(2)), tally_voucher_id: 'RCPT-2210', retry_count: 0, error_reason: null, created_at: iso(daysAgo(2)) },
+    ],
+    attendance: [
+      { id: 'a1', user_id: 'u_rep1', date: today, checkin_time: '09:05 AM', checkout_time: null, gps: { lat: 13.03, lng: 77.52 } },
+      { id: 'a2', user_id: 'u_rep2', date: today, checkin_time: '08:55 AM', checkout_time: null, gps: { lat: 15.36, lng: 75.12 } },
+      { id: 'a3', user_id: 'u_rep3', date: today, checkin_time: '09:20 AM', checkout_time: null, gps: { lat: 12.98, lng: 74.83 } },
+    ],
+    sync_log: [
+      { id: 'sl1', tenant_id: 't1', direction: 'push', payload: { voucher: 'RCPT-2291' }, status: 'success', error_message: null, created_at: iso(now) },
+      { id: 'sl2', tenant_id: 't1', direction: 'push', payload: { customer: 'Bharat Filtration Co.' }, status: 'error', error_message: 'Ledger name mismatch in Tally', created_at: iso(daysAgo(1)) },
+      { id: 'sl3', tenant_id: 't1', direction: 'pull', payload: { parties: 5 }, status: 'success', error_message: null, created_at: iso(now) },
+    ],
+    settings: { agent_status: 'connected', install_key: 'TF-AGENT-8842-KX91-3B7C', last_sync: iso(now) },
+  };
+}
+function loadDb() {
+  try { const raw = localStorage.getItem(TF_DB_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  const fresh = seedDb();
+  saveDb(fresh);
+  return fresh;
+}
+function saveDb(d) { localStorage.setItem(TF_DB_KEY, JSON.stringify(d)); }
+let db = loadDb();
+
+function loadSession() {
+  try { const raw = localStorage.getItem(TF_SESSION_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  return null;
+}
+function saveSession(s) { s ? localStorage.setItem(TF_SESSION_KEY, JSON.stringify(s)) : localStorage.removeItem(TF_SESSION_KEY); }
+function loadToken() { return localStorage.getItem(TF_TOKEN_KEY) || null; }
+function saveToken(t) { t ? localStorage.setItem(TF_TOKEN_KEY, t) : localStorage.removeItem(TF_TOKEN_KEY); }
+
+/* ---------------- app state (session-derived, not itself persisted) ---------------- */
+const state = {
+  session: loadSession(), // { userId }
+  token: loadToken(),     // the real backend's JWT, sent as Authorization: Bearer <token>
+  screen: 'login',
+  params: {},
+  online: navigator.onLine,
+  dashboardFilter: null,
+  loading: false,
+};
+if (state.session && state.token && currentUser()) state.screen = currentUser().role === 'rep' ? 'rep-home' : 'owner-dashboard';
+
+/* ---------------- helpers ---------------- */
+function esc(str) { return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function money(n) { return n === null || n === undefined ? '—' : '₹' + Number(n).toLocaleString('en-IN'); }
+function uid() { return 'id_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+function today() { return new Date().toISOString().slice(0, 10); }
+function currentUser() { return state.session ? db.users.find((u) => u.id === state.session.userId) : null; }
+function customerById(id) { return db.customers.find((c) => c.id === id); }
+function tallyPartyFor(customer) { return customer ? db.tally_parties.find((tp) => tp.id === customer.tally_party_id) : null; }
+function userById(id) { return db.users.find((u) => u.id === id); }
+function userName(id) { return userById(id)?.name || '—'; }
+function repsList() { return db.users.filter((u) => u.role === 'rep'); }
+function haversineKm(lat1, lng1, lat2, lng2) {
+  if (lat1 == null || lat2 == null) return null;
+  const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+const REP_ORIGIN = { lat: 13.02, lng: 77.55 }; // simulated "current rep location" for distance display
+
+function nav(screen, params = {}) {
+  state.screen = screen;
+  state.params = params;
+  state.loading = true;
+  renderShell();
+  setTimeout(() => { state.loading = false; renderShell(); document.getElementById('main').focus(); }, 260);
+}
+function rerender() { document.getElementById('main').innerHTML = SCREENS[state.screen].html(); SCREENS[state.screen].wire(); }
+function showToast(msg) {
+  let el = document.getElementById('toast');
+  if (el) el.remove();
+  el = document.createElement('div'); el.id = 'toast'; el.setAttribute('role', 'status'); el.textContent = msg;
+  document.body.appendChild(el);
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => el.remove(), 2600);
+}
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+function openModal(html) {
+  document.getElementById('modal-root').innerHTML = `<div class="modal-overlay" id="modal-overlay"><div class="modal">${html}</div></div>`;
+  document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') closeModal(); });
+}
+
+/* ---------------- shared UI primitives ---------------- */
+function chip(text, tone = 'neutral') { return `<span class="chip chip-${tone}">${esc(text)}</span>`; }
+function banner(text, tone = 'amber') { return `<div class="banner banner-${tone}">${text}</div>`; }
+function emptyState(title, body, actionHtml = '') { return `<div class="empty-state"><h3>${esc(title)}</h3><p>${esc(body)}</p>${actionHtml}</div>`; }
+function skeletonCards(n = 3) { return Array.from({ length: n }).map(() => `<div class="card skeleton skel-card"></div>`).join(''); }
+const SYNC_TONE = { synced: 'green', pending: 'amber', failed: 'red' };
+const OUTCOME_LABEL = { order: 'Order', collection: 'Collection', note: 'Note' };
+const OUTCOME_TONE = { order: 'blue', collection: 'green', note: 'neutral' };
+function visitStatusChip(s) {
+  return { not_visited: chip('Not visited', 'neutral'), checked_in: chip('Checked in', 'blue'), completed: chip('Completed', 'green') }[s] || '';
+}
+function pendingCountFor(userId) {
+  const role = userById(userId)?.role;
+  if (role === 'owner') return db.field_transactions.filter((t) => t.sync_status !== 'synced').length;
+  return db.field_transactions.filter((t) => t.sync_status !== 'synced' && t.rep_id === userId).length;
+}
+
+/* ================================================================
+   TOP BAR + TABS
+   ================================================================ */
+function renderTopbar() {
+  const top = document.getElementById('topbar');
+  if (!state.session) { top.innerHTML = `<div class="brand"><span class="dot"></span> TallyField</div>`; return; }
+  const u = currentUser();
+  const connChip = state.online
+    ? `<span class="conn-chip conn-online"><span class="conn-dot"></span>Online</span>`
+    : `<span class="conn-chip conn-offline"><span class="conn-dot"></span>Offline</span>`;
+  const pending = pendingCountFor(u.id);
+  const installBtn = deferredInstallPrompt ? `<button class="btn btn-secondary btn-sm" id="install-btn" style="width:auto;">Install</button>` : '';
+  top.innerHTML = `
+    <div class="brand"><span class="dot"></span> TallyField</div>
+    <div class="topbar-spacer"></div>
+    ${connChip}
+    ${installBtn}
+    <button class="icon-btn" id="sync-icon-btn" aria-label="Sync queue, ${pending} pending">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg>
+      ${pending > 0 ? `<span class="badge-dot">${pending}</span>` : ''}
+    </button>
+    <button class="user-chip" id="user-chip-btn" aria-label="Switch user or role">
+      <span class="avatar">${esc(u.name.split(' ').map((n) => n[0]).join('').slice(0, 2))}</span>
+      <span>${esc(u.name)} · ${u.role === 'owner' ? 'Owner' : 'Rep'}</span>
+    </button>
+  `;
+  document.getElementById('sync-icon-btn').addEventListener('click', () => nav(u.role === 'rep' ? 'sync-status' : 'settings'));
+  document.getElementById('user-chip-btn').addEventListener('click', openUserSwitcher);
+  const installEl = document.getElementById('install-btn');
+  if (installEl) installEl.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt = null; renderTopbar();
+  });
+}
+function openUserSwitcher() {
+  const u = currentUser();
+  // With real OTP auth behind this, there's no "switch to another
+  // identity" shortcut anymore — that would mean bypassing login
+  // entirely. This is now just account info + a real logout.
+  openModal(`
+    <div class="modal-header"><h2 style="font-size:18px;">Account</h2><button class="modal-close" id="modal-close">&times;</button></div>
+    <div class="card row-between">
+      <div class="row"><span class="avatar">${esc(u.name.split(' ').map((n) => n[0]).join('').slice(0, 2))}</span>
+        <div><div style="font-size:14px;font-weight:600;">${esc(u.name)}</div><div style="font-size:12px;color:var(--ink-600);">${u.role === 'owner' ? 'Owner' : 'Field Rep'} · ${esc(u.phone)}</div></div></div>
+    </div>
+    <div class="section-title">Session</div>
+    <button class="btn btn-secondary btn-block" id="logout-btn">Log Out</button>
+  `);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    if (state.token) {
+      // Best-effort — the JWT is revoked server-side if this reaches the
+      // API; either way the client forgets it immediately below.
+      fetch(`${API_BASE}/auth/logout.php`, { method: 'POST', headers: { Authorization: `Bearer ${state.token}` } }).catch(() => {});
+    }
+    state.session = null; state.token = null; saveSession(null); saveToken(null); closeModal(); nav('login');
+  });
+}
+const TABS = {
+  owner: [
+    { id: 'owner-dashboard', label: 'Dashboard' },
+    { id: 'reports', label: 'Reports' },
+    { id: 'settings', label: 'Settings' },
+  ],
+  rep: [
+    { id: 'rep-home', label: "Today's Visits" },
+    { id: 'sync-status', label: 'Sync Status' },
+  ],
+};
+function renderTabbar() {
+  const bar = document.getElementById('tabbar');
+  if (!state.session) { bar.innerHTML = ''; return; }
+  const role = currentUser().role;
+  const tabs = TABS[role];
+  const activeGroup = tabs.some((t) => t.id === state.screen) ? state.screen
+    : ['customer-detail', 'checkin', 'log-outcome'].includes(state.screen) ? 'rep-home'
+    : ['rep-drilldown'].includes(state.screen) ? 'owner-dashboard'
+    : tabs[0].id;
+  bar.innerHTML = tabs.map((t) => `<button data-tab="${t.id}" aria-current="${activeGroup === t.id}">${esc(t.label)}</button>`).join('');
+  document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => nav(b.dataset.tab)));
+}
+
+/* ================================================================
+   SCREEN 1 — LOGIN (real OTP via the backend at API_BASE)
+   ================================================================ */
+let loginState = { otpSent: false, phone: '', countdown: 0, sending: false };
+function screenLogin() {
+  const s = loginState;
+  return `
+  <div class="login-wrap screen">
+    <div class="card login-card">
+      <div class="login-logo">TF</div>
+      <h1 style="text-align:center;font-size:20px;margin-bottom:4px;">Sign in to TallyField</h1>
+      <p style="text-align:center;color:var(--ink-600);font-size:13px;margin-bottom:18px;">Field sales, synced to Tally</p>
+      <form id="login-form" class="stack" novalidate>
+        <div class="field" id="phone-field">
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" inputmode="numeric" placeholder="10-digit mobile number" ${s.otpSent ? 'readonly' : ''} value="${esc(s.phone)}">
+          <div class="field-error visually-hidden" id="phone-error" role="alert"></div>
+        </div>
+        ${s.otpSent ? `
+        <div class="field" id="otp-field">
+          <label for="otp">Enter 6-digit OTP</label>
+          <input type="text" id="otp" inputmode="numeric" placeholder="6-digit code" autofocus maxlength="6">
+          <div class="field-error visually-hidden" id="otp-error" role="alert"></div>
+          <span class="field-hint" id="resend-hint">${s.countdown > 0 ? `Resend OTP (${s.countdown}s)` : ''}</span>
+        </div>` : ''}
+        <button type="submit" class="btn btn-primary" id="login-submit" ${s.sending ? 'disabled' : ''}>${s.sending ? 'Please wait…' : s.otpSent ? 'Verify & Continue' : 'Send OTP'}</button>
+        ${s.otpSent && s.countdown === 0 ? `<button type="button" class="btn btn-ghost" id="resend-btn">Resend OTP</button>` : ''}
+      </form>
+    </div>
+  </div>`;
+}
+function wireLogin() {
+  const form = document.getElementById('login-form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const s = loginState;
+    if (!s.otpSent) requestOtp(document.getElementById('phone').value.trim());
+    else verifyOtp(document.getElementById('otp').value.trim());
+  });
+  const resendBtn = document.getElementById('resend-btn');
+  if (resendBtn) resendBtn.addEventListener('click', () => requestOtp(loginState.phone, true));
+}
+
+async function requestOtp(phone, isResend = false) {
+  if (!/^[6-9]\d{9}$/.test(phone)) return markInvalid('phone-field', 'phone-error', 'Enter a valid 10-digit number');
+  clearInvalid('phone-field', 'phone-error');
+  loginState.sending = true;
+  if (!isResend) rerender(); else { const btn = document.getElementById('login-submit'); if (btn) btn.disabled = true; }
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/send-otp.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone }),
+    });
+    const data = await res.json().catch(() => ({}));
+    loginState.sending = false;
+
+    if (!res.ok) {
+      // A network-reachable server said no — show its reason (bad
+      // format, or the SMS gateway itself failed to send).
+      loginState.otpSent = false;
+      rerender();
+      return markInvalid('phone-field', 'phone-error', data.message || "Couldn't send the code — try again");
+    }
+
+    loginState.phone = phone;
+    loginState.otpSent = true;
+    loginState.countdown = 30;
+    rerender();
+    startCountdown();
+    if (isResend) showToast('OTP resent');
+  } catch (err) {
+    // fetch() itself threw — no response at all (offline, DNS failure,
+    // CORS block, or API_BASE not actually deployed yet).
+    loginState.sending = false;
+    loginState.otpSent = false;
+    rerender();
+    markInvalid('phone-field', 'phone-error', "Couldn't reach the server — check your connection and API_BASE");
+  }
+}
+
+async function verifyOtp(otp) {
+  if (!/^\d{6}$/.test(otp)) return markInvalid('otp-field', 'otp-error', 'Enter the 6-digit code');
+  clearInvalid('otp-field', 'otp-error');
+  loginState.sending = true;
+  const btn = document.getElementById('login-submit');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/verify-otp.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: loginState.phone, otp }),
+    });
+    const data = await res.json().catch(() => ({}));
+    loginState.sending = false;
+
+    if (!res.ok) {
+      // The backend distinguishes these — surface its actual reason
+      // rather than a generic failure (matches send-otp's error style).
+      // otp_mismatch / otp_expired / otp_not_requested / too_many_attempts
+      if (btn) { btn.disabled = false; btn.textContent = 'Verify & Continue'; }
+      return markInvalid('otp-field', 'otp-error', data.message || 'Verification failed — try again');
+    }
+
+    state.token = data.token;
+    state.session = { userId: data.user.id };
+    saveToken(state.token);
+    saveSession(state.session);
+    loginState = { otpSent: false, phone: '', countdown: 0, sending: false };
+    showToast('Welcome, ' + data.user.name);
+    nav(data.user.role === 'rep' ? 'rep-home' : 'owner-dashboard');
+  } catch (err) {
+    loginState.sending = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify & Continue'; }
+    markInvalid('otp-field', 'otp-error', "Couldn't reach the server — check your connection and try again");
+  }
+}
+
+function startCountdown() {
+  clearInterval(startCountdown._t);
+  startCountdown._t = setInterval(() => {
+    loginState.countdown--;
+    const hint = document.getElementById('resend-hint');
+    if (hint) hint.textContent = loginState.countdown > 0 ? `Resend OTP (${loginState.countdown}s)` : '';
+    if (loginState.countdown <= 0) { clearInterval(startCountdown._t); rerender(); }
+  }, 1000);
+}
+function markInvalid(fieldId, errId, msg) { document.getElementById(fieldId).classList.add('invalid'); const e = document.getElementById(errId); e.textContent = msg; e.classList.remove('visually-hidden'); }
+function clearInvalid(fieldId, errId) { document.getElementById(fieldId).classList.remove('invalid'); const e = document.getElementById(errId); e.textContent = ''; e.classList.add('visually-hidden'); }
+
+/* ================================================================
+   SCREEN 2 — REP HOME
+   ================================================================ */
+function screenRepHome() {
+  if (state.loading) return `<div class="screen">${skeletonCards()}</div>`;
+  const u = currentUser();
+  const visits = db.visits.filter((v) => v.rep_id === u.id && v.date === today());
+  return `
+  <div class="screen">
+    <div class="screen-header row-between">
+      <div><h1>Today's Visits</h1><p class="sub">${new Date().toDateString()} · ${esc(u.name)}</p></div>
+      <button class="btn btn-secondary btn-sm" id="add-visit-btn">+ Add Visit</button>
+    </div>
+    ${!state.online ? banner('Offline — showing last loaded data. Check-ins still save locally.', 'amber') : ''}
+    <div class="stack">
+      ${visits.length === 0 ? emptyState('No visits planned for today', 'Add an unplanned stop to get started.', `<button class="btn btn-primary" id="add-visit-empty">+ Add Visit</button>`) :
+        visits.map((v) => {
+          const c = customerById(v.customer_id);
+          const tp = tallyPartyFor(c);
+          const dist = haversineKm(REP_ORIGIN.lat, REP_ORIGIN.lng, c.gps_lat, c.gps_lng);
+          return `<div class="card">
+            <div class="row-between">
+              <div><h3 style="font-size:15px;">${esc(c.name)}</h3><p class="sub" style="font-size:12px;margin-top:2px;">${esc(c.address)}${dist !== null ? ' · ' + dist.toFixed(1) + ' km away' : ''}</p></div>
+              ${visitStatusChip(v.status)}
+            </div>
+            <div class="row-between" style="margin-top:12px;">
+              <span style="font-size:13px;color:var(--ink-600);">Outstanding: <strong style="color:var(--ink-900);">${tp ? money(tp.balance) : '—'}</strong></span>
+              <div class="row" style="gap:8px;">
+                <button class="btn btn-secondary btn-sm" data-open-customer="${c.id}">View</button>
+                <button class="btn btn-primary btn-sm" data-checkin="${c.id}">${v.status === 'not_visited' ? 'Check In' : v.status === 'checked_in' ? 'Log Outcome' : 'View Outcome'}</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+    </div>
+    <div style="text-align:center;margin-top:16px;"><button class="btn btn-ghost" id="view-all-customers">View All Customers</button></div>
+  </div>`;
+}
+function wireRepHome() {
+  if (state.loading) return;
+  document.querySelectorAll('[data-open-customer]').forEach((b) => b.addEventListener('click', () => nav('customer-detail', { customerId: b.dataset.openCustomer })));
+  document.querySelectorAll('[data-checkin]').forEach((b) => b.addEventListener('click', () => {
+    const cid = b.dataset.checkin;
+    const v = db.visits.find((vv) => vv.customer_id === cid && vv.rep_id === currentUser().id && vv.date === today());
+    if (v && v.status !== 'not_visited') nav('log-outcome', { customerId: cid, visitId: v.id });
+    else nav('checkin', { customerId: cid });
+  }));
+  const add = document.getElementById('add-visit-btn') || document.getElementById('add-visit-empty');
+  if (add) add.addEventListener('click', openCustomerSearchModal);
+  document.getElementById('view-all-customers').addEventListener('click', openCustomerSearchModal);
+}
+function openCustomerSearchModal() {
+  const u = currentUser();
+  const mine = db.customers.filter((c) => c.assigned_rep_id === u.id);
+  openModal(`
+    <div class="modal-header"><h2 style="font-size:18px;">Find a Customer</h2><button class="modal-close" id="modal-close">&times;</button></div>
+    <div class="field"><input type="text" id="cs-search" placeholder="Search by name or address..." autofocus></div>
+    <div class="stack" id="cs-results" style="margin-top:12px;max-height:50vh;overflow-y:auto;"></div>
+  `);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  function paint(q) {
+    const results = mine.filter((c) => !q || c.name.toLowerCase().includes(q) || (c.address || '').toLowerCase().includes(q));
+    document.getElementById('cs-results').innerHTML = results.length ? results.map((c) => `
+      <button class="card row-between" data-pick="${c.id}" style="width:100%;text-align:left;cursor:pointer;">
+        <div><div style="font-size:14px;font-weight:600;">${esc(c.name)}</div><div style="font-size:12px;color:var(--ink-600);">${esc(c.address)}</div></div>
+      </button>`).join('') : emptyState('No matches', 'Try a different search term.');
+    document.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => { closeModal(); nav('checkin', { customerId: b.dataset.pick }); }));
+  }
+  paint('');
+  document.getElementById('cs-search').addEventListener('input', (e) => paint(e.target.value.trim().toLowerCase()));
+}
+
+/* ================================================================
+   SCREEN 3 — CUSTOMER DETAIL
+   ================================================================ */
+function screenCustomerDetail() {
+  if (state.loading) return `<div class="screen">${skeletonCards(1)}</div>`;
+  const c = customerById(state.params.customerId);
+  if (!c) return `<div class="screen">${emptyState('Customer not found', 'It may have been removed.')}</div>`;
+  const tp = tallyPartyFor(c);
+  const visits = db.visits.filter((v) => v.customer_id === c.id).sort((a, b) => new Date(b.checkin_time || 0) - new Date(a.checkin_time || 0));
+  const txns = db.field_transactions.filter((t) => t.customer_id === c.id).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const balanceOk = state.online && tp;
+  return `
+  <div class="screen">
+    <button class="back-link" id="back-btn">&larr; Back</button>
+    <div class="screen-header">
+      <div><h1>${esc(c.name)}</h1><p class="sub">${esc(c.address)}</p></div>
+    </div>
+    <div class="row" style="gap:8px;margin-bottom:14px;">
+      <a class="btn btn-secondary btn-sm" href="tel:${esc(c.phone)}">Call</a>
+      <a class="btn btn-secondary btn-sm" href="https://www.google.com/maps/search/?api=1&query=${c.gps_lat},${c.gps_lng}" target="_blank" rel="noopener">Get Directions</a>
+    </div>
+    <div class="card">
+      <p class="sub" style="font-size:12px;">Outstanding balance</p>
+      ${balanceOk
+        ? `<h2 style="font-size:28px;margin-top:4px;">${money(tp.balance)}</h2><p class="sub" style="font-size:11px;margin-top:4px;">as of ${new Date(tp.last_synced_at).toLocaleString()}</p>`
+        : `<h2 style="font-size:22px;margin-top:4px;color:var(--amber-500);">Balance unavailable</h2><p class="sub" style="font-size:11px;margin-top:4px;">${tp ? 'last known: ' + money(tp.balance) + ' as of ' + new Date(tp.last_synced_at).toLocaleDateString() : 'No cached balance for this customer.'}</p>`}
+      <p style="font-size:12px;color:var(--ink-600);margin-top:8px;">GSTIN: ${esc(c.gstin || '—')}</p>
+    </div>
+    <div class="section-title">Visit history</div>
+    ${visits.length ? `<div class="card">${visits.map((v) => `<div class="row-between" style="padding:6px 0;"><span style="font-size:13px;">${v.checkin_time ? new Date(v.checkin_time).toLocaleDateString() : v.date}</span>${visitStatusChip(v.status)}</div>`).join('')}</div>` : emptyState('No previous visits', 'This is a new customer for your route.')}
+    <div class="section-title">Tally vouchers / transactions</div>
+    ${txns.length ? `<div class="card">${txns.map(txRow).join('')}</div>` : emptyState('No transactions yet', 'Orders and collections will appear here.')}
+    <div style="margin-top:18px;"><button class="btn btn-primary" id="checkin-here-btn">Check In Here</button></div>
+  </div>`;
+}
+function wireCustomerDetail() {
+  if (state.loading) return;
+  document.getElementById('back-btn').addEventListener('click', () => nav(currentUser().role === 'rep' ? 'rep-home' : 'owner-dashboard'));
+  document.getElementById('checkin-here-btn').addEventListener('click', () => nav('checkin', { customerId: state.params.customerId }));
+}
+function txRow(t) {
+  const c = customerById(t.customer_id);
+  return `<div class="feed-row">
+    <div class="avatar">${esc((userName(t.rep_id) || '?').split(' ').map((n) => n[0]).join('').slice(0, 2))}</div>
+    <div style="flex:1;">
+      <div style="font-size:13px;"><strong>${esc(userName(t.rep_id))}</strong> logged ${chip(OUTCOME_LABEL[t.type], OUTCOME_TONE[t.type])} at ${esc(c?.name || 'a customer')}${t.amount ? ' · ' + money(t.amount) : ''}</div>
+      <div style="font-size:12px;color:var(--ink-600);margin-top:2px;">${new Date(t.created_at).toLocaleString()} · ${chip(t.sync_status, SYNC_TONE[t.sync_status])}</div>
+    </div>
+  </div>`;
+}
+
+/* ================================================================
+   SCREEN 4 — CHECK-IN
+   ================================================================ */
+let checkinState = { gpsStatus: 'loading', gps: null, photo: null };
+function screenCheckIn() {
+  const c = customerById(state.params.customerId);
+  const s = checkinState;
+  return `
+  <div class="screen">
+    <div class="screen-header"><h1>Check in — ${esc(c?.name || '')}</h1><p class="sub">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p></div>
+    <div class="map-box single-pin">
+      ${s.gpsStatus === 'loading' ? `<span style="font-size:13px;">Getting your location…</span>` : ''}
+      ${s.gpsStatus === 'ready' ? `<span style="font-size:22px;">📍</span><span style="font-size:13px;">Location captured</span>` : ''}
+      ${s.gpsStatus === 'error' ? `<span style="font-size:13px;text-align:center;padding:0 20px;">Couldn't get exact location</span>` : ''}
+    </div>
+    ${s.gpsStatus === 'error' ? banner('Location needed to check in — enable it in your browser settings, or check in anyway.', 'amber') : ''}
+    <div class="section-title">Photo</div>
+    <button type="button" class="photo-slot ${s.photo ? 'has-photo' : ''}" id="photo-slot">
+      <span style="font-size:13px;font-weight:600;">${s.photo ? 'Photo captured — tap to retake' : 'Take Photo'}</span>
+    </button>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">
+    ${!state.online ? banner('Offline — check-in will save locally and sync later.', 'amber') : ''}
+    <div class="stack" style="margin-top:18px;">
+      <button class="btn btn-primary" id="confirm-checkin" ${s.gpsStatus === 'loading' ? 'disabled' : ''}>Confirm Check-In</button>
+      <button class="btn btn-secondary" id="cancel-checkin">Cancel</button>
+    </div>
+  </div>`;
+}
+function wireCheckIn() {
+  checkinState = { gpsStatus: 'loading', gps: null, photo: null };
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { checkinState.gps = { lat: pos.coords.latitude, lng: pos.coords.longitude }; checkinState.gpsStatus = 'ready'; rerender(); },
+      () => { checkinState.gpsStatus = 'error'; rerender(); },
+      { timeout: 8000 }
+    );
+  } else { checkinState.gpsStatus = 'error'; }
+  document.getElementById('photo-slot').addEventListener('click', () => document.getElementById('photo-input').click());
+  document.getElementById('photo-input').addEventListener('change', (e) => {
+    if (!e.target.files[0]) return;
+    checkinState.photo = e.target.files[0].name;
+    showToast('Photo attached');
+    rerender();
+  });
+  document.getElementById('cancel-checkin').addEventListener('click', () => nav('customer-detail', { customerId: state.params.customerId }));
+  document.getElementById('confirm-checkin').addEventListener('click', () => {
+    const u = currentUser();
+    const cid = state.params.customerId;
+    let visit = db.visits.find((v) => v.customer_id === cid && v.rep_id === u.id && v.date === today());
+    if (!visit) { visit = { id: uid(), tenant_id: 't1', rep_id: u.id, customer_id: cid, date: today(), status: 'not_visited', outcome_type: null, notes: '' }; db.visits.push(visit); }
+    visit.status = 'checked_in';
+    visit.checkin_time = new Date().toISOString();
+    visit.checkin_gps = checkinState.gps;
+    visit.photo_url = checkinState.photo ? 'captured' : null;
+    saveDb(db);
+    showToast(state.online ? 'Checked in' : 'Saved — will sync when back online');
+    nav('log-outcome', { customerId: cid, visitId: visit.id });
+  });
+}
+
+/* ================================================================
+   SCREEN 5 — LOG OUTCOME
+   ================================================================ */
+let outcomeType = 'order';
+function screenLogOutcome() {
+  const c = customerById(state.params.customerId);
+  return `
+  <div class="screen">
+    <div class="screen-header"><h1>Log outcome — ${esc(c?.name || '')}</h1></div>
+    <div class="toggle-group" role="tablist" aria-label="Outcome type">
+      <button type="button" role="tab" aria-pressed="${outcomeType === 'order'}" data-type="order">Order</button>
+      <button type="button" role="tab" aria-pressed="${outcomeType === 'collection'}" data-type="collection">Collection</button>
+      <button type="button" role="tab" aria-pressed="${outcomeType === 'note'}" data-type="note">Note</button>
+    </div>
+    <form id="outcome-form" class="stack" style="margin-top:14px;" novalidate>
+      ${outcomeType === 'order' ? `
+        <div class="field"><label for="o-item">Item</label><select id="o-item"><option>SS Push-Fit Elbow 1/2"</option><option>QUICKAIR Aluminium Profile 40x40</option><option>Other</option></select></div>
+        <div class="field"><label for="o-qty">Quantity</label><input type="number" id="o-qty" min="1" placeholder="e.g. 50"></div>
+        <div class="field"><label for="o-notes">Notes (optional)</label><textarea id="o-notes" rows="2"></textarea></div>` : ''}
+      ${outcomeType === 'collection' ? `
+        <div class="field" id="amount-field"><label for="o-amount">Amount received</label><input type="number" id="o-amount" min="0" placeholder="₹0">
+          <div class="field-error visually-hidden" id="amount-error" role="alert"></div></div>
+        <div class="field"><label for="o-paymode">Payment mode</label><select id="o-paymode"><option>Cash</option><option>UPI</option><option>Cheque</option></select></div>
+        <div class="field"><label for="o-ref">Reference number (optional)</label><input type="text" id="o-ref"></div>` : ''}
+      ${outcomeType === 'note' ? `
+        <div class="field"><label for="o-note">Note</label><textarea id="o-note" rows="4" placeholder="What happened at this visit?"></textarea></div>
+        <div class="row" style="gap:8px;"><input type="checkbox" id="o-followup" style="width:auto;"><label for="o-followup" style="font-size:13px;font-weight:500;">Needs follow-up</label></div>
+        <div class="field" id="o-followup-date-field" style="display:none;"><label for="o-followup-date">Follow-up date</label><input type="date" id="o-followup-date"></div>` : ''}
+      ${!state.online ? banner("Offline — this will save locally and sync when you're back online.", 'amber') : ''}
+      <button type="submit" class="btn btn-primary" style="margin-top:4px;">Save Outcome</button>
+    </form>
+  </div>`;
+}
+function wireLogOutcome() {
+  document.querySelectorAll('[data-type]').forEach((b) => b.addEventListener('click', () => { outcomeType = b.dataset.type; rerender(); }));
+  const fu = document.getElementById('o-followup');
+  if (fu) fu.addEventListener('change', () => { document.getElementById('o-followup-date-field').style.display = fu.checked ? 'flex' : 'none'; });
+  document.getElementById('outcome-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = currentUser();
+    const cid = state.params.customerId;
+    const visit = db.visits.find((v) => v.id === state.params.visitId) || db.visits.find((v) => v.customer_id === cid && v.rep_id === u.id && v.date === today());
+
+    if (outcomeType === 'note') {
+      visit.status = 'completed';
+      visit.outcome_type = 'note';
+      visit.notes = document.getElementById('o-note').value;
+      saveDb(db);
+      showToast('Note saved');
+      nav('rep-home');
+      return;
+    }
+
+    const tx = { id: uid(), tenant_id: 't1', visit_id: visit.id, rep_id: u.id, customer_id: cid, type: outcomeType, sync_status: 'pending', claimed_by: null, claimed_at: null, tally_voucher_id: null, retry_count: 0, error_reason: null, created_at: new Date().toISOString() };
+    if (outcomeType === 'order') {
+      tx.items_json = [{ item: document.getElementById('o-item').value, qty: Number(document.getElementById('o-qty').value) || 0 }];
+      tx.amount = null; tx.payment_mode = null; tx.ref_no = document.getElementById('o-notes').value;
+    } else {
+      const amt = Number(document.getElementById('o-amount').value);
+      if (!amt || amt <= 0) { markInvalid('amount-field', 'amount-error', 'Enter a valid amount'); return; }
+      clearInvalid('amount-field', 'amount-error');
+      tx.amount = amt; tx.payment_mode = document.getElementById('o-paymode').value; tx.ref_no = document.getElementById('o-ref').value; tx.items_json = null;
+      const tp = tallyPartyFor(customerById(cid));
+      if (tp) tp.balance = Math.max(0, tp.balance - amt);
+    }
+    visit.status = 'completed';
+    visit.outcome_type = outcomeType;
+    db.field_transactions.unshift(tx);
+    saveDb(db);
+    showToast(state.online ? 'Outcome saved — syncing to Tally' : 'Saved — will sync to Tally when online');
+
+    setTimeout(() => {
+      const t = db.field_transactions.find((x) => x.id === tx.id);
+      if (t && t.sync_status === 'pending') {
+        t.sync_status = 'synced'; t.tally_voucher_id = 'RCPT-' + Math.floor(2000 + Math.random() * 900);
+        t.claimed_by = 'AGENT-DESK-01'; t.claimed_at = new Date().toISOString();
+        saveDb(db);
+        if (state.screen === 'sync-status') rerender();
+      }
+    }, 2200);
+
+    outcomeType = 'order';
+    nav('sync-status');
+  });
+}
+
+/* ================================================================
+   SCREEN 6 — SYNC STATUS (rep-facing)
+   ================================================================ */
+function screenSyncStatus() {
+  if (state.loading) return `<div class="screen">${skeletonCards()}</div>`;
+  const u = currentUser();
+  const mine = (u.role === 'owner' ? db.field_transactions : db.field_transactions.filter((t) => t.rep_id === u.id))
+    .slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const groups = { failed: mine.filter((t) => t.sync_status === 'failed'), pending: mine.filter((t) => t.sync_status === 'pending'), synced: mine.filter((t) => t.sync_status === 'synced') };
+  const allEmpty = !mine.length;
+  const row = (t) => `<div class="feed-row">
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:600;">${esc(customerById(t.customer_id)?.name || '—')}${u.role === 'owner' ? ' · ' + esc(userName(t.rep_id)) : ''}</div>
+      <div style="font-size:12px;color:var(--ink-600);">${chip(OUTCOME_LABEL[t.type], OUTCOME_TONE[t.type])} ${t.amount ? '· ' + money(t.amount) : ''} · ${new Date(t.created_at).toLocaleTimeString()}</div>
+      ${t.error_reason ? `<div style="font-size:12px;color:var(--red-500);margin-top:2px;">${esc(t.error_reason)}</div>` : ''}
+    </div>
+    <div class="row" style="gap:6px;">
+      ${t.sync_status === 'failed' ? `<button class="btn btn-secondary btn-sm" data-retry="${t.id}">Retry</button>` : chip(t.sync_status, SYNC_TONE[t.sync_status])}
+      <button class="btn btn-ghost btn-sm" data-details="${t.id}">Details</button>
+    </div>
+  </div>`;
+  return `
+  <div class="screen">
+    <div class="screen-header row-between">
+      <h1>Sync Status</h1>
+      ${groups.failed.length ? `<button class="btn btn-secondary btn-sm" id="retry-all">Retry All</button>` : ''}
+    </div>
+    ${!state.online ? banner("Offline — items will retry automatically once you're back online.", 'amber') : ''}
+    ${allEmpty ? emptyState('All caught up', 'Nothing pending — every visit outcome has synced to Tally.') : `
+      ${groups.failed.length ? `<div class="section-title">Failed</div><div class="card">${groups.failed.map(row).join('')}</div>` : ''}
+      ${groups.pending.length ? `<div class="section-title">Pending</div><div class="card">${groups.pending.map(row).join('')}</div>` : ''}
+      ${groups.synced.length ? `<div class="section-title">Synced</div><div class="card">${groups.synced.map(row).join('')}</div>` : ''}
+    `}
+  </div>`;
+}
+function wireSyncStatus() {
+  if (state.loading) return;
+  document.querySelectorAll('[data-retry]').forEach((b) => b.addEventListener('click', () => {
+    const t = db.field_transactions.find((x) => x.id === b.dataset.retry);
+    t.sync_status = 'pending'; t.retry_count = (t.retry_count || 0) + 1; t.error_reason = null;
+    saveDb(db); showToast('Retrying sync…'); rerender();
+    setTimeout(() => { t.sync_status = 'synced'; t.tally_voucher_id = 'RCPT-' + Math.floor(2000 + Math.random() * 900); saveDb(db); if (state.screen === 'sync-status') rerender(); }, 1600);
+  }));
+  const retryAll = document.getElementById('retry-all');
+  if (retryAll) retryAll.addEventListener('click', () => {
+    db.field_transactions.filter((t) => t.sync_status === 'failed').forEach((t) => { t.sync_status = 'pending'; t.retry_count++; t.error_reason = null; });
+    saveDb(db); showToast('Retrying all failed items…'); rerender();
+    setTimeout(() => { db.field_transactions.filter((t) => t.sync_status === 'pending').forEach((t) => { t.sync_status = 'synced'; t.tally_voucher_id = t.tally_voucher_id || 'RCPT-' + Math.floor(2000 + Math.random() * 900); }); saveDb(db); if (state.screen === 'sync-status') rerender(); }, 1600);
+  });
+  document.querySelectorAll('[data-details]').forEach((b) => b.addEventListener('click', () => openSyncDetails(b.dataset.details)));
+}
+function openSyncDetails(id) {
+  const t = db.field_transactions.find((x) => x.id === id);
+  if (!t) return;
+  const c = customerById(t.customer_id);
+  openModal(`
+    <div class="modal-header"><h2 style="font-size:18px;">Transaction Details</h2><button class="modal-close" id="modal-close">&times;</button></div>
+    <div class="stack" style="font-size:13px;">
+      <div class="row-between"><span style="color:var(--ink-600);">Customer</span><strong>${esc(c?.name || '—')}</strong></div>
+      <div class="row-between"><span style="color:var(--ink-600);">Type</span>${chip(OUTCOME_LABEL[t.type], OUTCOME_TONE[t.type])}</div>
+      <div class="row-between"><span style="color:var(--ink-600);">Amount</span><strong>${money(t.amount)}</strong></div>
+      <div class="row-between"><span style="color:var(--ink-600);">Status</span>${chip(t.sync_status, SYNC_TONE[t.sync_status])}</div>
+      <div class="row-between"><span style="color:var(--ink-600);">Tally Voucher</span><span>${esc(t.tally_voucher_id || '—')}</span></div>
+      <div class="row-between"><span style="color:var(--ink-600);">Claimed By</span><span>${esc(t.claimed_by || '—')}</span></div>
+      <div class="row-between"><span style="color:var(--ink-600);">Retry Count</span><span>${t.retry_count || 0}</span></div>
+      ${t.error_reason ? `<div class="row-between"><span style="color:var(--ink-600);">Error</span><span style="color:var(--red-500);">${esc(t.error_reason)}</span></div>` : ''}
+      <div class="row-between"><span style="color:var(--ink-600);">Created</span><span>${new Date(t.created_at).toLocaleString()}</span></div>
+    </div>
+  `);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+}
+
+/* ================================================================
+   SCREEN 7 — OWNER DASHBOARD
+   ================================================================ */
+function screenOwnerDashboard() {
+  if (state.loading) return `<div class="screen-wide">${skeletonCards()}</div>`;
+  const totalOutstanding = db.tally_parties.reduce((s, tp) => s + tp.balance, 0);
+  const collectedToday = db.field_transactions.filter((t) => t.type === 'collection' && (t.created_at || '').slice(0, 10) === today()).reduce((s, t) => s + (t.amount || 0), 0);
+  const visitsToday = db.visits.filter((v) => v.date === today());
+  const activeRepIds = new Set(db.attendance.filter((a) => a.date === today() && !a.checkout_time).map((a) => a.user_id));
+  const feed = [...db.field_transactions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10);
+  return `
+  <div class="screen-wide">
+    <div class="screen-header"><div><h1>Dashboard</h1><p class="sub">${new Date().toDateString()} · ${esc(db.tenants[0].company_name)}</p></div></div>
+    <div class="kpi-grid">
+      <button class="kpi-tile" data-kpi="outstanding"><div class="label">Total Outstanding</div><div class="value">${money(totalOutstanding)}</div></button>
+      <button class="kpi-tile" data-kpi="collected"><div class="label">Collected Today</div><div class="value">${money(collectedToday)}</div></button>
+      <button class="kpi-tile" data-kpi="visits"><div class="label">Visits Today</div><div class="value">${visitsToday.length}</div></button>
+      <button class="kpi-tile" data-kpi="reps"><div class="label">Active Reps</div><div class="value">${activeRepIds.size}</div></button>
+    </div>
+    <div class="section-title">Rep map</div>
+    <div class="map-box">
+      ${repsList().map((r) => {
+        const active = activeRepIds.has(r.id);
+        const c = db.customers.find((cc) => cc.assigned_rep_id === r.id);
+        return `<div class="map-pin-row" data-open-rep="${r.id}"><span class="pin-dot" style="background:${active ? '#5b8cf5' : '#4b5768'};"></span>
+          <span style="font-size:13px;flex:1;">${esc(r.name)}</span>
+          <span style="font-size:12px;color:${active ? '#5b8cf5' : '#8592a3'};">${active ? 'Active near ' + esc((c?.address || '').split(',')[0] || 'route') : 'Off today'}</span></div>`;
+      }).join('')}
+    </div>
+    <div class="section-title">Activity feed</div>
+    ${feed.length ? `<div class="card">${feed.map((t) => `<div data-open-rep="${t.rep_id}" style="cursor:pointer;">${txRow(t)}</div>`).join('')}</div>` : emptyState('No activity yet', 'Logged visits and transactions will show up here.')}
+  </div>`;
+}
+function wireOwnerDashboard() {
+  if (state.loading) return;
+  document.querySelectorAll('[data-kpi]').forEach((b) => b.addEventListener('click', () => nav('reports', { focus: b.dataset.kpi })));
+  document.querySelectorAll('[data-open-rep]').forEach((b) => b.addEventListener('click', () => nav('rep-drilldown', { repId: b.dataset.openRep })));
+}
+
+/* ================================================================
+   SCREEN 8 — REP DRILLDOWN (Owner view)
+   ================================================================ */
+let drilldownRange = 'today';
+function screenRepDrilldown() {
+  const rep = userById(state.params.repId);
+  if (!rep) return `<div class="screen-wide">${emptyState('Rep not found', '')}</div>`;
+  const att = db.attendance.find((a) => a.user_id === rep.id && a.date === today());
+  const rangeVisits = filterByRange(db.visits.filter((v) => v.rep_id === rep.id), 'date', drilldownRange);
+  const rangeTxns = filterByRange(db.field_transactions.filter((t) => t.rep_id === rep.id), 'created_at', drilldownRange);
+  const collected = rangeTxns.filter((t) => t.type === 'collection').reduce((s, t) => s + (t.amount || 0), 0);
+  return `
+  <div class="screen-wide">
+    <button class="back-link" id="back-btn">&larr; Back to dashboard</button>
+    <div class="screen-header row-between">
+      <div class="row"><span class="avatar" style="width:44px;height:44px;font-size:16px;">${esc(rep.name.split(' ').map((n) => n[0]).join('').slice(0, 2))}</span>
+        <div><h1 style="font-size:18px;">${esc(rep.name)}</h1><p class="sub">${att ? 'Checked in ' + esc(att.checkin_time) : 'Not checked in today'} · ${esc(rep.phone)}</p></div></div>
+      <a class="btn btn-secondary btn-sm" href="tel:${esc(rep.phone)}">Message Rep</a>
+    </div>
+    <div class="toggle-group" style="max-width:340px;">
+      <button aria-pressed="${drilldownRange === 'today'}" data-range="today">Today</button>
+      <button aria-pressed="${drilldownRange === 'week'}" data-range="week">This Week</button>
+      <button aria-pressed="${drilldownRange === 'custom'}" data-range="custom">Custom</button>
+    </div>
+    ${drilldownRange === 'custom' ? `
+      <div class="field-row" style="margin-top:12px;max-width:340px;">
+        <div class="field"><label for="dd-from">From</label><input type="date" id="dd-from" value="${state.params.customFrom || ''}"></div>
+        <div class="field"><label for="dd-to">To</label><input type="date" id="dd-to" value="${state.params.customTo || ''}"></div>
+      </div>` : ''}
+    <div class="kpi-grid" style="margin-top:14px;max-width:420px;">
+      <div class="kpi-tile" style="cursor:default;"><div class="label">Visits</div><div class="value">${rangeVisits.length}</div></div>
+      <div class="kpi-tile" style="cursor:default;"><div class="label">Collected</div><div class="value">${money(collected)}</div></div>
+    </div>
+    <div class="section-title">Visit log</div>
+    <div class="table-scroll card" style="padding:0;">
+      <table>
+        <thead><tr><th>Date</th><th>Customer</th><th>Outcome</th><th>Amount</th></tr></thead>
+        <tbody>${rangeVisits.length ? rangeVisits.map((v) => {
+          const c = customerById(v.customer_id);
+          const tx = db.field_transactions.find((t) => t.visit_id === v.id);
+          return `<tr><td>${esc(v.date)}</td><td>${esc(c?.name || '—')}</td><td>${v.outcome_type ? chip(OUTCOME_LABEL[v.outcome_type], OUTCOME_TONE[v.outcome_type]) : visitStatusChip(v.status)}</td><td>${tx ? money(tx.amount) : '—'}</td></tr>`;
+        }).join('') : `<tr><td colspan="4" style="text-align:center;color:var(--ink-600);">No visits in this range</td></tr>`}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function filterByRange(rows, dateField, range) {
+  const now = new Date();
+  if (range === 'today') return rows.filter((r) => (r[dateField] || '').slice(0, 10) === today());
+  if (range === 'week') { const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7); return rows.filter((r) => new Date(r[dateField] || 0) >= weekAgo); }
+  if (range === 'custom' && state.params.customFrom && state.params.customTo) {
+    return rows.filter((r) => (r[dateField] || '').slice(0, 10) >= state.params.customFrom && (r[dateField] || '').slice(0, 10) <= state.params.customTo);
+  }
+  return rows;
+}
+function wireRepDrilldown() {
+  document.getElementById('back-btn').addEventListener('click', () => nav('owner-dashboard'));
+  document.querySelectorAll('[data-range]').forEach((b) => b.addEventListener('click', () => { drilldownRange = b.dataset.range; rerender(); }));
+  const from = document.getElementById('dd-from'), to = document.getElementById('dd-to');
+  if (from) from.addEventListener('change', () => { state.params.customFrom = from.value; rerender(); });
+  if (to) to.addEventListener('change', () => { state.params.customTo = to.value; rerender(); });
+}
+
+/* ================================================================
+   SCREEN 9 — REPORTS
+   ================================================================ */
+let reportTab = 'visits';
+function screenReports() {
+  if (state.loading) return `<div class="screen-wide">${skeletonCards()}</div>`;
+  const repFilter = state.params.repFilter || '';
+  let rows = [];
+  if (reportTab === 'visits') rows = db.visits.filter((v) => !repFilter || v.rep_id === repFilter);
+  if (reportTab === 'collections') rows = db.field_transactions.filter((t) => t.type === 'collection' && (!repFilter || t.rep_id === repFilter));
+  if (reportTab === 'outstanding') rows = db.customers.filter((c) => !repFilter || c.assigned_rep_id === repFilter);
+
+  return `
+  <div class="screen-wide">
+    <div class="screen-header row-between">
+      <h1>Reports</h1>
+      <div class="row" style="gap:8px;">
+        <button class="btn btn-secondary btn-sm" id="export-csv">Export CSV</button>
+        <button class="btn btn-secondary btn-sm" id="export-pdf">Export PDF</button>
+      </div>
+    </div>
+    <div class="row-between" style="margin-bottom:14px;flex-wrap:wrap;gap:12px;">
+      <div class="toggle-group" style="max-width:440px;">
+        <button aria-pressed="${reportTab === 'visits'}" data-tab="visits">Visit Log</button>
+        <button aria-pressed="${reportTab === 'collections'}" data-tab="collections">Collections</button>
+        <button aria-pressed="${reportTab === 'outstanding'}" data-tab="outstanding">Outstanding by Rep</button>
+      </div>
+      <select id="rep-filter" style="padding:9px 12px;border-radius:8px;border:1px solid var(--ink-200);">
+        <option value="">All Reps</option>
+        ${repsList().map((r) => `<option value="${r.id}" ${repFilter === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="table-scroll card" style="padding:0;">
+      ${reportTab === 'visits' ? `<table><thead><tr><th>Date</th><th>Customer</th><th>Rep</th><th>Status</th></tr></thead>
+        <tbody>${rows.length ? rows.map((v) => `<tr><td>${esc(v.date)}</td><td>${esc(customerById(v.customer_id)?.name || '—')}</td><td>${esc(userName(v.rep_id))}</td><td>${visitStatusChip(v.status)}</td></tr>`).join('') : `<tr><td colspan="4" style="text-align:center;color:var(--ink-600);">No data for this range</td></tr>`}</tbody></table>` : ''}
+      ${reportTab === 'collections' ? `<table><thead><tr><th>Date</th><th>Customer</th><th>Rep</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>${rows.length ? rows.map((t) => `<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td>${esc(customerById(t.customer_id)?.name || '—')}</td><td>${esc(userName(t.rep_id))}</td><td>${money(t.amount)}</td><td>${chip(t.sync_status, SYNC_TONE[t.sync_status])}</td></tr>`).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--ink-600);">No data for this range</td></tr>`}</tbody></table>` : ''}
+      ${reportTab === 'outstanding' ? `<table><thead><tr><th>Customer</th><th>Rep</th><th>Balance</th></tr></thead>
+        <tbody>${rows.length ? rows.map((c) => `<tr><td>${esc(c.name)}</td><td>${esc(userName(c.assigned_rep_id))}</td><td>${money(tallyPartyFor(c)?.balance)}</td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center;color:var(--ink-600);">No data for this range</td></tr>`}</tbody></table>` : ''}
+    </div>
+  </div>`;
+}
+function wireReports() {
+  if (state.loading) return;
+  document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { reportTab = b.dataset.tab; rerender(); }));
+  document.getElementById('rep-filter').addEventListener('change', (e) => { state.params.repFilter = e.target.value; rerender(); });
+  document.getElementById('export-csv').addEventListener('click', exportCsv);
+  document.getElementById('export-pdf').addEventListener('click', () => showToast('PDF export would download here'));
+}
+function exportCsv() {
+  let headers = [], rows = [];
+  const repFilter = state.params.repFilter || '';
+  if (reportTab === 'visits') {
+    headers = ['Date', 'Customer', 'Rep', 'Status'];
+    rows = db.visits.filter((v) => !repFilter || v.rep_id === repFilter).map((v) => [v.date, customerById(v.customer_id)?.name || '', userName(v.rep_id), v.status]);
+  } else if (reportTab === 'collections') {
+    headers = ['Date', 'Customer', 'Rep', 'Amount', 'Status'];
+    rows = db.field_transactions.filter((t) => t.type === 'collection' && (!repFilter || t.rep_id === repFilter)).map((t) => [new Date(t.created_at).toLocaleDateString(), customerById(t.customer_id)?.name || '', userName(t.rep_id), t.amount, t.sync_status]);
+  } else {
+    headers = ['Customer', 'Rep', 'Balance'];
+    rows = db.customers.filter((c) => !repFilter || c.assigned_rep_id === repFilter).map((c) => [c.name, userName(c.assigned_rep_id), tallyPartyFor(c)?.balance ?? '']);
+  }
+  const csv = [headers.join(','), ...rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tallyfield-${reportTab}-${today()}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('CSV downloaded');
+}
+
+/* ================================================================
+   SCREEN 10 — SETTINGS (Owner only) — Tally connection + rep management
+   ================================================================ */
+function screenSettings() {
+  const s = db.settings;
+  return `
+  <div class="screen">
+    <div class="screen-header"><h1>Tally Connection Settings</h1></div>
+    <div class="card">
+      <div class="row-between">
+        <div><div style="font-weight:600;font-size:14px;">${esc(db.tenants[0].tally_company_name)}</div>
+        <div style="font-size:12px;color:var(--ink-600);">Last synced ${new Date(s.last_sync).toLocaleString()}</div></div>
+        ${chip(s.agent_status === 'connected' ? 'Connected' : s.agent_status === 'error' ? 'Error' : 'Disconnected', s.agent_status === 'connected' ? 'green' : s.agent_status === 'error' ? 'red' : 'neutral')}
+      </div>
+      <div class="row-between" style="margin-top:14px;">
+        <span style="font-size:12px;color:var(--ink-600);">Install Key</span>
+        <code style="font-size:12px;background:var(--surface-1);padding:4px 8px;border-radius:6px;">${esc(s.install_key)}</code>
+      </div>
+      <div class="stack" style="margin-top:14px;">
+        <button class="btn btn-secondary" id="download-agent">Download Sync Agent</button>
+        <button class="btn btn-secondary" id="copy-key">Copy Install Key</button>
+        <button class="btn btn-primary" id="test-conn">Test Connection</button>
+      </div>
+    </div>
+
+    <div class="section-title">Field Reps</div>
+    ${banner("This list is local to your browser for demo purposes — it doesn't grant real login access. Add a rep to the real users table (with their actual phone number) for them to sign in for real.", 'amber')}
+    <div class="card">
+      ${repsList().map((r) => {
+        const custCount = db.customers.filter((c) => c.assigned_rep_id === r.id).length;
+        return `<div class="row-between" style="padding:9px 0;border-bottom:1px solid var(--ink-100);">
+          <div><div style="font-size:13px;font-weight:600;">${esc(r.name)}</div><div style="font-size:12px;color:var(--ink-600);">${esc(r.phone)} · ${custCount} customers assigned</div></div>
+          <button class="btn btn-danger" data-remove-rep="${r.id}">Remove</button>
+        </div>`;
+      }).join('')}
+      <button class="btn btn-secondary btn-sm" style="margin-top:10px;" id="add-rep-btn">+ Add Rep</button>
+    </div>
+  </div>`;
+}
+function wireSettings() {
+  document.getElementById('download-agent').addEventListener('click', () => showToast('Sync agent download would start here'));
+  document.getElementById('copy-key').addEventListener('click', () => {
+    const key = db.settings.install_key;
+    if (navigator.clipboard) navigator.clipboard.writeText(key).then(() => showToast('Install key copied')).catch(() => showToast(key));
+    else showToast(key);
+  });
+  document.getElementById('test-conn').addEventListener('click', (e) => {
+    const btn = e.currentTarget; btn.disabled = true; btn.textContent = 'Testing…';
+    setTimeout(() => {
+      btn.disabled = false; btn.textContent = 'Test Connection';
+      db.settings.agent_status = 'connected'; db.settings.last_sync = new Date().toISOString();
+      saveDb(db); showToast('Connection OK'); rerender();
+    }, 900);
+  });
+  document.getElementById('add-rep-btn').addEventListener('click', openAddRepModal);
+  document.querySelectorAll('[data-remove-rep]').forEach((b) => b.addEventListener('click', () => {
+    const repId = b.dataset.removeRep;
+    db.customers.filter((c) => c.assigned_rep_id === repId).forEach((c) => { c.assigned_rep_id = null; });
+    db.users = db.users.filter((u) => u.id !== repId);
+    saveDb(db);
+    showToast('Rep removed — their customers are now unassigned');
+    rerender();
+  }));
+}
+function openAddRepModal() {
+  openModal(`
+    <div class="modal-header"><h2 style="font-size:18px;">Add Rep</h2><button class="modal-close" id="modal-close">&times;</button></div>
+    <form id="add-rep-form" class="stack" novalidate>
+      <div class="field"><label for="ar-name">Name</label><input id="ar-name" required></div>
+      <div class="field"><label for="ar-phone">Phone number</label><input id="ar-phone" inputmode="numeric" placeholder="10-digit mobile number" required></div>
+      <div class="field-error visually-hidden" id="ar-error" role="alert"></div>
+      <button type="submit" class="btn btn-primary btn-block">Add Rep</button>
+    </form>
+  `);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('add-rep-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('ar-name').value.trim();
+    const phone = document.getElementById('ar-phone').value.trim();
+    if (!name || !/^[6-9]\d{9}$/.test(phone)) { const err = document.getElementById('ar-error'); err.textContent = 'Enter a name and a valid 10-digit phone number'; err.classList.remove('visually-hidden'); return; }
+    if (db.users.some((u) => u.phone === phone)) { const err = document.getElementById('ar-error'); err.textContent = 'That phone number is already registered'; err.classList.remove('visually-hidden'); return; }
+    db.users.push({ id: uid(), tenant_id: 't1', role: 'rep', name, phone });
+    saveDb(db);
+    closeModal(); showToast('Rep added'); rerender();
+  });
+}
+
+/* ================================================================
+   RENDER DISPATCH
+   ================================================================ */
+const SCREENS = {
+  'login': { html: screenLogin, wire: wireLogin },
+  'rep-home': { html: screenRepHome, wire: wireRepHome },
+  'customer-detail': { html: screenCustomerDetail, wire: wireCustomerDetail },
+  'checkin': { html: screenCheckIn, wire: wireCheckIn },
+  'log-outcome': { html: screenLogOutcome, wire: wireLogOutcome },
+  'sync-status': { html: screenSyncStatus, wire: wireSyncStatus },
+  'owner-dashboard': { html: screenOwnerDashboard, wire: wireOwnerDashboard },
+  'rep-drilldown': { html: screenRepDrilldown, wire: wireRepDrilldown },
+  'reports': { html: screenReports, wire: wireReports },
+  'settings': { html: screenSettings, wire: wireSettings },
+};
+function renderShell() { renderTopbar(); renderTabbar(); rerender(); }
+
+/* ---------------- connectivity ---------------- */
+window.addEventListener('offline', () => { state.online = false; renderShell(); showToast("You're offline — changes save locally"); });
+window.addEventListener('online', () => { state.online = true; renderShell(); showToast('Back online'); });
+
+/* ---------------- installability ---------------- */
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; renderTopbar(); });
+window.addEventListener('appinstalled', () => { deferredInstallPrompt = null; renderTopbar(); });
+
+/* ---------------- service worker ---------------- */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').then((reg) => {
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => { if (refreshing) return; refreshing = true; window.location.reload(); });
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
+  });
+}
+
+renderShell();
+</script>
 </body>
 </html>

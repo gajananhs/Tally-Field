@@ -38,6 +38,9 @@ CREATE TABLE otp_codes (
   INDEX idx_otp_user_created (user_id, created_at)
 ) ENGINE=InnoDB;
 
+-- Superseded by stateless JWT sessions (see api/config.php) — kept for
+-- backward compatibility with any code still referencing it, but new
+-- auth code no longer writes to this table.
 CREATE TABLE sessions (
   id          CHAR(36)  PRIMARY KEY,
   tenant_id   CHAR(36)  NOT NULL,
@@ -49,6 +52,19 @@ CREATE TABLE sessions (
   CONSTRAINT fk_sessions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE KEY uq_sessions_token (token_hash),
   INDEX idx_sessions_user (user_id, expires_at)
+) ENGINE=InnoDB;
+
+-- JWTs are stateless by design, so "logout" has nothing to delete server
+-- side by default. This table lets logout (and, if ever needed, a forced
+-- sign-out) actually revoke a token before its natural expiry: every
+-- issued JWT carries a `jti`, and requireAuth() rejects one found here.
+CREATE TABLE revoked_tokens (
+  jti         CHAR(36)  PRIMARY KEY,
+  user_id     CHAR(36)  NOT NULL,
+  expires_at  DATETIME  NOT NULL,          -- copy of the JWT's own exp, so this row can be purged once it's moot anyway
+  revoked_at  DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_revoked_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_revoked_expiry (expires_at)     -- for a cleanup cron: DELETE FROM revoked_tokens WHERE expires_at < NOW()
 ) ENGINE=InnoDB;
 
 CREATE TABLE tally_parties (
