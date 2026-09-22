@@ -17,13 +17,18 @@ api/
   customers/           get.php
   field-transactions/  create.php, list.php, retry.php
   owner/                dashboard.php
-public/                 Deploy this folder as the web root
+public/                 Backend-connected build — needs api/ + a real MySQL host
   index.html            App shell
-  app.js                Router, screens, API calls
+  app.js                Router, screens, real fetch() calls to api/
   queue.js              IndexedDB offline queue for check-in / log outcome
   service-worker.js     App-shell caching for offline load
   manifest.json          PWA installability
   icons/                 Placeholder SVG icons (swap for real artwork before wide release)
+docs/                  Static, backend-free build — deployable straight to GitHub Pages
+  (same screens as public/, wired to docs/mock.js's localStorage-backed
+  mock API instead of api/ — see DEPLOY.md for the full explanation and
+  a pre-publish test checklist)
+DEPLOY.md              GitHub Pages setup steps for docs/
 ```
 
 ## QA fixes already applied here
