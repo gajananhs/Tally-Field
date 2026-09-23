@@ -27,8 +27,23 @@ if ($user) {
     $rate->execute([$user['id']]);
 
     if ((int) $rate->fetch()['n'] < 5) {
-        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $sent = sendOtpSms($phone, $code);
+        // --- TEMPORARY OTP BYPASS ---------------------------------------
+        // Set OTP_BYPASS_CODE in .env to skip the real SMS gateway while
+        // MSG91's DLT template is still pending approval — the fixed code
+        // gets stored exactly like a real one, so verify-otp.php needs no
+        // changes at all. REMOVE OTP_BYPASS_CODE FROM .ENV once the real
+        // template is live: as long as it's set, ANY registered phone
+        // number can sign in with this one fixed code — that is fine for
+        // your own testing and actively dangerous if real users have it.
+        $bypassCode = getenv('OTP_BYPASS_CODE');
+        if ($bypassCode && preg_match('/^\d{6}$/', $bypassCode)) {
+            logApiError('otp_bypass_used', "phone=$phone — OTP_BYPASS_CODE is set in .env; remove it once MSG91's DLT template is approved");
+            $code = $bypassCode;
+            $sent = true; // never actually calls the SMS gateway while bypass is active
+        } else {
+            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $sent = sendOtpSms($phone, $code);
+        }
 
         if (!$sent) {
             // A real, surfaceable failure — the gateway is down, out of

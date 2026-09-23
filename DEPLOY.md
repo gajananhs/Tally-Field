@@ -317,3 +317,18 @@ JWT. Full setup is in `sync-agent/README-AGENT.md`.
   the agent parses the actual count rather than treating the tag's mere
   presence as a failure (a real bug from an earlier Tally integration
   this project's memory notes, deliberately avoided here).
+
+## 12. Temporary OTP bypass (while MSG91's DLT template is pending)
+
+Set `OTP_BYPASS_CODE` in `api/.env` to a 6-digit code — `send-otp.php`
+then skips the real SMS gateway and stores that fixed code as if it had
+been sent, for any registered phone number. `verify-otp.php` needed no
+changes at all; it's still just comparing against whatever's in
+`otp_codes`, which now happens to be a known value instead of a random
+one. Every use gets logged (`otp_bypass_used` in the PHP error log) so
+it's not something that fades into the background unnoticed.
+
+**Remove `OTP_BYPASS_CODE` from `.env` the moment MSG91's template is
+approved and real SMS is confirmed working.** While it's set, that one
+code signs in as *any* registered user — fine for your own testing,
+a real problem if it's ever live at the same time as real users.
