@@ -47,9 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // --- DB connection --------------------------------------------------
 $DB_HOST = getenv('DB_HOST') ?: 'localhost';
-$DB_NAME = getenv('DB_NAME') ?: 'tallyfield';
-$DB_USER = getenv('DB_USER') ?: 'tallyfield_user';
-$DB_PASS = getenv('DB_PASS') ?: '';
+$DB_NAME = getenv('DB_NAME') ?: 'u924350731_tallyfield';
+$DB_USER = getenv('DB_USER') ?: 'u924350731_tallyfield';
+$DB_PASS = getenv('DB_PASS') ?: 'Tallyfield@2026';
 
 try {
     $pdo = new PDO(
