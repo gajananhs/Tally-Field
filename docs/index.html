@@ -1118,7 +1118,12 @@ function screenSettings() {
   </div>`;
 }
 function wireSettings() {
-  document.getElementById('download-agent').addEventListener('click', () => showToast('Sync agent download would start here'));
+  document.getElementById('download-agent').addEventListener('click', () => {
+    // Served as a static file alongside the api/ folder — same origin
+    // as API_BASE, since it's just a download, not something requiring
+    // the agent-key/JWT auth the rest of api/ uses.
+    window.location.href = `${API_BASE}/downloads/tallyfield-sync-agent.zip`;
+  });
   document.getElementById('copy-key').addEventListener('click', () => {
     const key = db.settings.install_key;
     if (navigator.clipboard) navigator.clipboard.writeText(key).then(() => showToast('Install key copied')).catch(() => showToast(key));

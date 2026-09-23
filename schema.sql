@@ -67,6 +67,21 @@ CREATE TABLE revoked_tokens (
   INDEX idx_revoked_expiry (expires_at)     -- for a cleanup cron: DELETE FROM revoked_tokens WHERE expires_at < NOW()
 ) ENGINE=InnoDB;
 
+-- Desktop sync agent connection info, per tenant. agent_key is how the
+-- agent authenticates (see requireAgent() in config.php) — a separate
+-- credential from user JWTs, generated once by
+-- api/settings/tally-connection.php and never rotated silently.
+CREATE TABLE tally_connections (
+  tenant_id          CHAR(36)     PRIMARY KEY,
+  host                VARCHAR(255) NOT NULL,
+  port                INT          NULL,
+  agent_key           CHAR(64)     NOT NULL,
+  status              ENUM('connected','disconnected','error') NOT NULL DEFAULT 'disconnected',
+  last_connected_at   DATETIME     NULL,
+  updated_at          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_tc_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 CREATE TABLE tally_parties (
   id             CHAR(36)     PRIMARY KEY,
   tenant_id      CHAR(36)     NOT NULL,

@@ -32,6 +32,8 @@ api/
   customers/             get.php
   field-transactions/   create.php, list.php, retry.php
   owner/                 dashboard.php
+  agent/                 pull.php, result.php, balances.php — desktop sync agent only, X-Agent-Key auth (not JWT)
+  downloads/              tallyfield-sync-agent.zip — served statically; the Settings screen's "Download Sync Agent" button links straight here
 public/                  Backend-connected PWA build — needs api/ + a real MySQL host
   index.html             App shell (phone/OTP login, real fetch() calls to api/)
   app.js                 Router, screens, real fetch() calls to api/

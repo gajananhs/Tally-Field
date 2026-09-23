@@ -204,7 +204,7 @@ const TF_TOKEN_KEY = 'tallyfield_v2_token';
 // (customers, visits, transactions) still runs on the local mock
 // `db` object below; only login now talks to a real server. See
 // DEPLOY.md's "Real OTP login" section before changing this.
-const API_BASE = 'https://canaresonline.com/tallyfield/api';
+const API_BASE = 'https://your-api-domain.example.com/api';
 
 /* ---------------- seed data ---------------- */
 function seedDb() {
@@ -215,7 +215,7 @@ function seedDb() {
   const today = dateOnly(now);
 
   return {
-    tenants: [{ id: 't1', company_name: 'Canares Automation Pvt Ltd',  'Canares Engineering Co Kumta 2025-26' , plan: 'trial' }],
+    tenants: [{ id: 't1', company_name: 'Canares Automation Pvt Ltd', tally_company_name: 'Canares Group of Company', plan: 'trial' }],
     users: [
       { id: 'u_owner1', tenant_id: 't1', role: 'owner', name: 'Gajanan', phone: '9000000000' },
       { id: 'u_rep1', tenant_id: 't1', role: 'rep', name: 'Suresh K.', phone: '9000000001' },
@@ -1118,7 +1118,12 @@ function screenSettings() {
   </div>`;
 }
 function wireSettings() {
-  document.getElementById('download-agent').addEventListener('click', () => showToast('Sync agent download would start here'));
+  document.getElementById('download-agent').addEventListener('click', () => {
+    // Served as a static file alongside the api/ folder — same origin
+    // as API_BASE, since it's just a download, not something requiring
+    // the agent-key/JWT auth the rest of api/ uses.
+    window.location.href = `${API_BASE}/downloads/tallyfield-sync-agent.zip`;
+  });
   document.getElementById('copy-key').addEventListener('click', () => {
     const key = db.settings.install_key;
     if (navigator.clipboard) navigator.clipboard.writeText(key).then(() => showToast('Install key copied')).catch(() => showToast(key));

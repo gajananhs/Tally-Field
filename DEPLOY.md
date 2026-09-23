@@ -272,3 +272,48 @@ can stay empty for it.
   rep there updates the mock `db` so the rest of the demo reflects it,
   but doesn't create a row in the real `users` table, so that person
   couldn't actually sign in. The screen says so.
+
+## 11. Desktop sync agent
+
+`sync-agent/` is a Windows PowerShell agent — install it on whichever
+office machine keeps Tally open — plus three new API endpoints it talks
+to (`api/agent/pull.php`, `result.php`, `balances.php`), authenticated
+with the per-tenant `agent_key` from `tally_connections`, not a user
+JWT. Full setup is in `sync-agent/README-AGENT.md`.
+
+### Deploy
+
+1. Upload the new `api/agent/` folder and the updated `api/config.php`
+   (adds `requireAgent()`) to the same place `api/` already lives.
+2. Upload `api/downloads/tallyfield-sync-agent.zip` too — the
+   Settings screen's "Download Sync Agent" button now links directly to
+   `${API_BASE}/downloads/tallyfield-sync-agent.zip`, so this file has
+   to actually be there or the button 404s.
+3. Run the new `CREATE TABLE tally_connections` statement from
+   `schema.sql` — skip this if it's the one you already added by hand
+   in phpMyAdmin.
+4. On the office machine: unzip `tallyfield-sync-agent.zip`, get the
+   agent key from Settings, and follow `README-AGENT.md`.
+
+### What it actually does
+
+- **Pull direction** (real balances into the app): reads every ledger's
+  closing balance from Tally via an inline TDL Collection request, and
+  pushes them to `agent/balances.php`, which upserts `tally_parties` by
+  `ledger_name` — this is what makes "Outstanding" in the app reflect
+  real Tally data instead of seed values.
+- **Push direction** (orders/collections into Tally): pulls pending
+  `field_transactions` from `agent/pull.php` (which atomically claims
+  them so two agent runs can't double-process the same row), posts a
+  real **Receipt voucher** for each Collection, and reports success or
+  failure back to `agent/result.php`.
+- **Orders are a known limitation, not an oversight** — the Log Outcome
+  form never captured a price, so a balanced Sales Invoice isn't
+  possible without inventing one. Orders post as a **Sales Order**
+  voucher (quantity only) instead, for the office to price and convert
+  manually. See `README-AGENT.md` for what it'd take to change this.
+- **The `<ERRORS>0</ERRORS>` gotcha is handled correctly** — Tally's
+  success response still contains an `<ERRORS>` tag, just with value 0;
+  the agent parses the actual count rather than treating the tag's mere
+  presence as a failure (a real bug from an earlier Tally integration
+  this project's memory notes, deliberately avoided here).
