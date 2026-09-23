@@ -120,6 +120,7 @@ function renderBottomNav() {
   ];
   const ownerTabs = [
     { id: 'owner-dashboard', label: 'Dashboard' },
+    { id: 'settings', label: 'Settings' },
   ];
   const tabs = state.user.role === 'rep' ? repTabs : ownerTabs;
   bn.innerHTML = tabs.map((t) => `<button data-nav="${t.id}" aria-current="${state.screen === t.id}">${esc(t.label)}</button>`).join('');
@@ -270,12 +271,15 @@ async function loadRepHome() {
     repHomeCache = [];
     showToast('Could not load visits — check your connection');
   }
-  if (state.screen === 'rep-home') rerenderScreenBody();
+  if (state.screen === 'rep-home') { paintScreenBody(); attachRepHomeHandlers(); }
+}
+function attachRepHomeHandlers() {
+  document.querySelectorAll('[data-open-customer]').forEach((b) =>
+    b.addEventListener('click', () => nav('customer-detail', { customerId: b.dataset.openCustomer })));
 }
 function wireRepHome() {
   loadRepHome();
-  document.querySelectorAll('[data-open-customer]').forEach((b) =>
-    b.addEventListener('click', () => nav('customer-detail', { customerId: b.dataset.openCustomer })));
+  attachRepHomeHandlers();
 }
 function skeletonCards(n = 3) { return Array.from({ length: n }).map(() => `<div class="card skeleton skel-card"></div>`).join(''); }
 
@@ -306,9 +310,12 @@ function screenCustomerDetail() {
 function wireCustomerDetail() {
   customerCache = null;
   apiJson('GET', `/customers/get.php?id=${encodeURIComponent(state.params.customerId)}`)
-    .then((data) => { customerCache = data; rerenderScreenBody(); })
+    .then((data) => { customerCache = data; if (state.screen === 'customer-detail') { paintScreenBody(); attachCustomerDetailHandlers(); } })
     .catch(() => showToast('Could not load customer'));
-  document.getElementById('back-btn').addEventListener('click', () => nav('rep-home'));
+  attachCustomerDetailHandlers();
+}
+function attachCustomerDetailHandlers() {
+  document.getElementById('back-btn')?.addEventListener('click', () => nav('rep-home'));
   document.getElementById('checkin-here-btn')?.addEventListener('click', () => nav('checkin', state.params));
 }
 
@@ -345,20 +352,23 @@ function wireCheckIn() {
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      (pos) => { checkinGps = { lat: pos.coords.latitude, lng: pos.coords.longitude }; checkinGpsState = 'ready'; rerenderScreenBody(); },
-      () => { checkinGpsState = 'error'; rerenderScreenBody(); },
+      (pos) => { checkinGps = { lat: pos.coords.latitude, lng: pos.coords.longitude }; checkinGpsState = 'ready'; if (state.screen === 'checkin') { paintScreenBody(); attachCheckInHandlers(); } },
+      () => { checkinGpsState = 'error'; if (state.screen === 'checkin') { paintScreenBody(); attachCheckInHandlers(); } },
       { timeout: 15000 }
     );
   } else {
-    checkinGpsState = 'error'; rerenderScreenBody();
+    checkinGpsState = 'error';
   }
 
+  attachCheckInHandlers();
+}
+function attachCheckInHandlers() {
   document.getElementById('photo-slot').addEventListener('click', () => document.getElementById('photo-input').click());
   document.getElementById('photo-input').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => { checkinPhoto = reader.result; rerenderScreenBody(); };
+    reader.onload = () => { checkinPhoto = reader.result; paintScreenBody(); attachCheckInHandlers(); };
     reader.readAsDataURL(file);
   });
   document.getElementById('cancel-checkin').addEventListener('click', () => nav('customer-detail', state.params));
@@ -416,9 +426,12 @@ function screenLogOutcome() {
     </form>
   </div>`;
 }
-function wireLogOutcome() {
-  outcomeType = 'order'; // fixes QA Defect 6
-  document.querySelectorAll('[data-type]').forEach((b) => b.addEventListener('click', () => { outcomeType = b.dataset.type; rerenderScreenBody(); }));
+function attachLogOutcomeHandlers() {
+  document.querySelectorAll('[data-type]').forEach((b) => b.addEventListener('click', () => {
+    outcomeType = b.dataset.type;
+    paintScreenBody();
+    attachLogOutcomeHandlers();
+  }));
   document.getElementById('outcome-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -454,6 +467,10 @@ function wireLogOutcome() {
     }
     nav('sync-status');
   });
+}
+function wireLogOutcome() {
+  outcomeType = 'order'; // fixes QA Defect 6 — only reset on a fresh entry to the screen, not on every internal re-render
+  attachLogOutcomeHandlers();
 }
 
 /* ================================================================
@@ -496,17 +513,18 @@ async function loadSyncStatus() {
     failed: server.field_transactions.filter((t) => t.sync_status === 'failed'),
     queued: queued.filter((q) => q.status === 'pending'),
   };
-  if (state.screen === 'sync-status') rerenderScreenBody();
+  if (state.screen === 'sync-status') { paintScreenBody(); attachSyncStatusHandlers(); }
 }
-function wireSyncStatus() {
-  loadSyncStatus();
-  document.addEventListener('click', function retryHandler(e) {
-    const btn = e.target.closest('[data-retry]');
-    if (!btn) return;
+function attachSyncStatusHandlers() {
+  document.querySelectorAll('[data-retry]').forEach((btn) => btn.addEventListener('click', () => {
     apiJson('POST', '/field-transactions/retry.php', { id: btn.dataset.retry })
       .then(() => { showToast('Retrying sync…'); loadSyncStatus(); })
       .catch(() => showToast('Retry failed — check your connection'));
-  }, { once: true });
+  }));
+}
+function wireSyncStatus() {
+  loadSyncStatus();
+  attachSyncStatusHandlers();
 }
 
 /* ================================================================
@@ -541,9 +559,145 @@ async function loadOwnerDashboard() {
   dashboardCache = null;
   try { dashboardCache = await apiJson('GET', '/owner/dashboard.php'); }
   catch (e) { showToast('Could not load dashboard'); dashboardCache = { total_outstanding: 0, collected_today: 0, visits_today: 0, active_reps: 0, activity_feed: [] }; }
-  if (state.screen === 'owner-dashboard') rerenderScreenBody();
+  if (state.screen === 'owner-dashboard') paintScreenBody();
 }
 function wireOwnerDashboard() { loadOwnerDashboard(); }
+
+/* ================================================================
+   SETTINGS (Owner only) — real Tally connection + rep management,
+   wired to the actual api/settings/*.php endpoints (not the mock
+   version in the demo build).
+   ================================================================ */
+let settingsCache = null;
+let showAddRepForm = false;
+function screenSettings() {
+  if (settingsCache === null) return `<div class="screen">${skeletonCards()}</div>`;
+  const conn = settingsCache.connection;
+  return `
+  <div class="screen">
+    <div class="screen-header"><h1>Tally Connection Settings</h1></div>
+    <div class="card">
+      ${conn ? `
+        <div class="row-between">
+          <div><div style="font-weight:600;font-size:14px;">${esc(conn.host)}${conn.port ? ':' + esc(conn.port) : ''}</div>
+          <div style="font-size:12px;color:var(--ink-600);">${conn.last_connected_at ? 'Last synced ' + new Date(conn.last_connected_at).toLocaleString() : 'Never synced yet'}</div></div>
+          ${chip(conn.status === 'connected' ? 'Connected' : conn.status === 'error' ? 'Error' : 'Disconnected', conn.status === 'connected' ? 'green' : conn.status === 'error' ? 'red' : 'neutral')}
+        </div>
+        <div class="row-between" style="margin-top:14px;">
+          <span style="font-size:12px;color:var(--ink-600);">Install Key</span>
+          <code style="font-size:12px;background:var(--surface-1);padding:4px 8px;border-radius:6px;">${esc(conn.agent_key)}</code>
+        </div>` : banner('No Tally connection configured yet — set the host and port below, then install the sync agent on the machine running Tally.', 'amber')}
+    </div>
+
+    <form id="connection-form" class="stack" style="margin-top:14px;">
+      <div class="field"><label for="conn-host">Tally Host</label><input id="conn-host" placeholder="localhost or a LAN IP" value="${esc(conn?.host || 'localhost')}"></div>
+      <div class="field"><label for="conn-port">Port</label><input id="conn-port" type="number" value="${conn?.port || 9000}"></div>
+      <div class="row" style="gap:10px;">
+        <button type="button" class="btn btn-secondary" id="refresh-status-btn">Refresh Status</button>
+        <button type="submit" class="btn btn-primary">Save Connection</button>
+      </div>
+    </form>
+
+    <div class="stack" style="margin-top:14px;">
+      <a class="btn btn-secondary" href="./api/downloads/tallyfield-sync-agent.zip">Download Sync Agent</a>
+      <button class="btn btn-secondary" id="copy-key-btn" ${!conn ? 'disabled' : ''}>Copy Install Key</button>
+    </div>
+
+    <div class="section-title">Sync history</div>
+    ${settingsCache.history.length ? `<div class="card">${settingsCache.history.map((h) => `
+      <div class="row-between" style="padding:8px 0;border-bottom:1px solid var(--ink-100);">
+        <span style="font-size:13px;">${h.direction === 'push' ? 'Push to Tally' : 'Pull from Tally'}</span>
+        <span>${chip(h.status, h.status === 'success' ? 'green' : 'red')}</span>
+        <span style="font-size:12px;color:var(--ink-600);">${new Date(h.created_at).toLocaleString()}</span>
+      </div>`).join('')}</div>` : emptyState('No sync activity yet', 'History appears here once the sync agent runs.')}
+
+    <div class="section-title">Field Reps</div>
+    ${banner('Adding a rep here creates a real login — they can sign in with this phone number immediately.', 'amber')}
+    <div class="card">
+      ${settingsCache.reps.map((r) => `
+        <div class="row-between" style="padding:9px 0;border-bottom:1px solid var(--ink-100);">
+          <div><div style="font-size:13px;font-weight:600;">${esc(r.name)}</div><div style="font-size:12px;color:var(--ink-600);">${esc(r.phone)}</div></div>
+          <button class="btn btn-danger" data-remove-rep="${r.id}">Remove</button>
+        </div>`).join('')}
+      ${showAddRepForm ? `
+        <form id="add-rep-form" class="stack" style="margin-top:12px;">
+          <div class="field"><label for="ar-name">Name</label><input id="ar-name" required></div>
+          <div class="field" id="ar-phone-field"><label for="ar-phone">Phone number</label><input id="ar-phone" inputmode="numeric" placeholder="10-digit mobile number" required>
+            <div class="field-error visually-hidden" id="ar-phone-error" role="alert"></div></div>
+          <div class="row" style="gap:10px;">
+            <button type="submit" class="btn btn-primary">Add Rep</button>
+            <button type="button" class="btn btn-secondary" id="cancel-add-rep">Cancel</button>
+          </div>
+        </form>` : `<button class="btn btn-secondary btn-sm" style="margin-top:10px;" id="add-rep-btn">+ Add Rep</button>`}
+    </div>
+  </div>`;
+}
+async function loadSettings() {
+  settingsCache = null;
+  try {
+    const [connData, repsData] = await Promise.all([
+      apiJson('GET', '/settings/tally-connection.php'),
+      apiJson('GET', '/settings/reps.php'),
+    ]);
+    settingsCache = { connection: connData.connection, history: connData.history, reps: repsData.reps.filter((r) => r.is_active) };
+  } catch (e) {
+    settingsCache = { connection: null, history: [], reps: [] };
+    showToast('Could not load settings');
+  }
+  if (state.screen === 'settings') { paintScreenBody(); attachSettingsHandlers(); }
+}
+function attachSettingsHandlers() {
+  const connForm = document.getElementById('connection-form');
+  if (connForm) connForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const host = document.getElementById('conn-host').value.trim();
+    const port = Number(document.getElementById('conn-port').value) || null;
+    apiJson('POST', '/settings/tally-connection.php', { host, port })
+      .then(() => { showToast('Connection saved'); loadSettings(); })
+      .catch((err) => showToast(err.message || 'Could not save connection'));
+  });
+
+  const refreshBtn = document.getElementById('refresh-status-btn');
+  if (refreshBtn) refreshBtn.addEventListener('click', () => { loadSettings(); showToast('Refreshed'); });
+
+  const copyBtn = document.getElementById('copy-key-btn');
+  if (copyBtn) copyBtn.addEventListener('click', () => {
+    const key = settingsCache?.connection?.agent_key;
+    if (!key) return;
+    if (navigator.clipboard) navigator.clipboard.writeText(key).then(() => showToast('Install key copied')).catch(() => showToast(key));
+    else showToast(key);
+  });
+
+  document.querySelectorAll('[data-remove-rep]').forEach((b) => b.addEventListener('click', () => {
+    apiJson('DELETE', `/settings/reps.php?id=${encodeURIComponent(b.dataset.removeRep)}`)
+      .then(() => { showToast('Rep removed'); loadSettings(); })
+      .catch(() => showToast('Could not remove rep'));
+  }));
+
+  // Form-visibility toggles are local UI state, not a data reload — repaint
+  // directly rather than going through loadSettings() (which would also
+  // needlessly re-fetch from the API just to show/hide a form).
+  const addBtn = document.getElementById('add-rep-btn');
+  if (addBtn) addBtn.addEventListener('click', () => { showAddRepForm = true; paintScreenBody(); attachSettingsHandlers(); });
+  const cancelBtn = document.getElementById('cancel-add-rep');
+  if (cancelBtn) cancelBtn.addEventListener('click', () => { showAddRepForm = false; paintScreenBody(); attachSettingsHandlers(); });
+
+  const addForm = document.getElementById('add-rep-form');
+  if (addForm) addForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('ar-name').value.trim();
+    const phone = document.getElementById('ar-phone').value.trim();
+    if (!/^[6-9]\d{9}$/.test(phone)) return markInvalid('ar-phone-field', 'ar-phone-error', 'Enter a valid 10-digit number');
+    clearInvalid('ar-phone-field', 'ar-phone-error');
+    apiJson('POST', '/settings/reps.php', { name, phone })
+      .then(() => { showToast('Rep added'); showAddRepForm = false; loadSettings(); })
+      .catch((err) => markInvalid('ar-phone-field', 'ar-phone-error', err.message || 'Could not add rep'));
+  });
+}
+function wireSettings() {
+  loadSettings();
+  attachSettingsHandlers();
+}
 
 /* ================================================================
    RENDER DISPATCH
@@ -556,10 +710,17 @@ const screens = {
   'log-outcome': { html: screenLogOutcome, wire: wireLogOutcome },
   'sync-status': { html: screenSyncStatus, wire: wireSyncStatus },
   'owner-dashboard': { html: screenOwnerDashboard, wire: wireOwnerDashboard },
+  'settings': { html: screenSettings, wire: wireSettings },
 };
 function renderScreenHtml() { return screens[state.screen].html(); }
 function wireScreen() { screens[state.screen].wire(); }
 function rerenderScreenBody() { document.getElementById('main').innerHTML = renderScreenHtml(); wireScreen(); }
+// Used when a load*() function finishes and needs to repaint with real
+// data — deliberately does NOT call wireScreen()/wire<X>() again, since
+// wire<X>() is what kicks off the load in the first place. Repainting
+// through the normal wire path would retrigger the same load forever
+// (a real bug this fixes — see attach<X>Handlers() below).
+function paintScreenBody() { document.getElementById('main').innerHTML = renderScreenHtml(); }
 
 function render() {
   renderTopbar();

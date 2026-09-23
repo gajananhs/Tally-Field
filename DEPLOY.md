@@ -332,3 +332,43 @@ it's not something that fades into the background unnoticed.
 approved and real SMS is confirmed working.** While it's set, that one
 code signs in as *any* registered user — fine for your own testing,
 a real problem if it's ever live at the same time as real users.
+
+## 13. Fixed: infinite API-call loop on the real backend-connected build
+
+`public/app.js` had a systemic bug, present since it was first built —
+not introduced by any change described above, but only caught once the
+real Settings screen (§ above) made it possible to actually exercise
+these code paths end to end.
+
+**The bug:** every "load data, then show it" screen followed the same
+shape — fetch, then call `rerenderScreenBody()`. But
+`rerenderScreenBody()` re-runs `wireScreen()`, which re-invokes that
+same screen's `wire<X>()` function, which is what kicks off the fetch
+in the first place. That's an infinite loop: `owner-dashboard`,
+`rep-home`, `customer-detail`, and `sync-status` would each hammer
+their API endpoint continuously, forever, the moment they were opened.
+`checkin` had the same shape around its geolocation callback —
+successfully getting a GPS fix would immediately request it again, on
+a loop, rather than settling.
+
+A related bug in `log-outcome`: `wireLogOutcome()` unconditionally
+reset `outcomeType = 'order'` every time it ran — including when the
+Order/Collection/Note toggle's own click handler triggered a
+re-render. The visible symptom: tapping "Collection" or "Note" never
+actually stuck; the form silently reverted to Order underneath,
+regardless of what was on screen.
+
+**The fix** — applied consistently across all six screens: a new
+`paintScreenBody()` helper repaints the DOM from a load's result
+without going through `wireScreen()` again, and each screen now has
+a separate `attach<X>Handlers()` that only attaches event listeners —
+never triggers a load itself. `wire<X>()` calls the load once and
+attaches handlers once; the load's completion repaints and
+re-attaches, but never calls `wire<X>()` again. `log-outcome` only
+resets `outcomeType` in `wireLogOutcome()` (once per navigation), not
+in the toggle's own repaint path.
+
+Verified with a headless regression suite (jsdom, stubbed `fetch`)
+that counts API calls per screen and confirms the count goes to zero
+and stays there once a screen settles — not just that the screen
+eventually renders correctly.
