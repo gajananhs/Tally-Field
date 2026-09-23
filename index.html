@@ -206,6 +206,16 @@ const TF_TOKEN_KEY = 'tallyfield_v2_token';
 // DEPLOY.md's "Real OTP login" section before changing this.
 const API_BASE = 'https://your-api-domain.example.com/api';
 
+// TEMPORARY — flip to false once API_BASE above actually points at a
+// deployed backend. While true, login never touches the network at
+// all: it matches the phone against the local seeded db.users array
+// (below) and accepts any correctly-formatted 6-digit code, exactly
+// like the very first version of this build before real OTP was wired
+// in. This unblocks testing the rest of the app immediately without
+// waiting on backend deployment. Demo numbers are shown on the login
+// screen itself while this is on.
+const DEMO_MODE = true;
+
 /* ---------------- seed data ---------------- */
 function seedDb() {
   const now = new Date();
@@ -442,7 +452,8 @@ function screenLogin() {
     <div class="card login-card">
       <div class="login-logo">TF</div>
       <h1 style="text-align:center;font-size:20px;margin-bottom:4px;">Sign in to TallyField</h1>
-      <p style="text-align:center;color:var(--ink-600);font-size:13px;margin-bottom:18px;">Field sales, synced to Tally</p>
+      <p style="text-align:center;color:var(--ink-600);font-size:13px;margin-bottom:4px;">Field sales, synced to Tally</p>
+      ${DEMO_MODE ? `<p style="text-align:center;color:var(--blue-500);font-size:12px;margin-bottom:14px;background:var(--blue-050);border-radius:8px;padding:8px 10px;">Demo mode — backend not connected yet. Try <strong>9000000001</strong> (Field Rep) or <strong>9000000000</strong> (Owner), any 6-digit code.</p>` : `<div style="margin-bottom:18px;"></div>`}
       <form id="login-form" class="stack" novalidate>
         <div class="field" id="phone-field">
           <label for="phone">Phone number</label>
@@ -479,6 +490,25 @@ async function requestOtp(phone, isResend = false) {
   clearInvalid('phone-field', 'phone-error');
   loginState.sending = true;
   if (!isResend) rerender(); else { const btn = document.getElementById('login-submit'); if (btn) btn.disabled = true; }
+
+  if (DEMO_MODE) {
+    await new Promise((r) => setTimeout(r, 300)); // feels like a real request rather than an instant snap
+    const user = db.users.find((u) => u.phone === phone);
+    loginState.sending = false;
+    if (!user) {
+      loginState.otpSent = false;
+      rerender();
+      return markInvalid('phone-field', 'phone-error', 'Number not recognized — try 9000000000 (Owner) or 9000000001 (Rep)');
+    }
+    loginState.demoUser = user;
+    loginState.phone = phone;
+    loginState.otpSent = true;
+    loginState.countdown = 30;
+    rerender();
+    startCountdown();
+    if (isResend) showToast('OTP resent');
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/auth/send-otp.php`, {
@@ -519,6 +549,20 @@ async function verifyOtp(otp) {
   loginState.sending = true;
   const btn = document.getElementById('login-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+
+  if (DEMO_MODE) {
+    await new Promise((r) => setTimeout(r, 300));
+    loginState.sending = false;
+    const user = loginState.demoUser;
+    state.token = 'demo-token';
+    state.session = { userId: user.id };
+    saveToken(state.token);
+    saveSession(state.session);
+    loginState = { otpSent: false, phone: '', countdown: 0, sending: false };
+    showToast('Welcome, ' + user.name);
+    nav(user.role === 'rep' ? 'rep-home' : 'owner-dashboard');
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/auth/verify-otp.php`, {
